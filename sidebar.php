@@ -50,8 +50,8 @@
                             <?php
                             // 判断评论对应的文章是否可访问
                             $contentInfo = FindContent($comments->cid);
-                            $isHidden = ($contentInfo['hidden'] && $this->options->PjaxOption);
-                            $isPrivate = ($contentInfo['status'] != 'publish' && $contentInfo['template'] != 'page-whisper.php' && $this->authorId !== $this->user->uid && !$this->user->pass('editor', true));
+                            $isHidden = (($contentInfo['hidden'] ?? false) && $this->options->PjaxOption);
+                            $isPrivate = (($contentInfo['status'] ?? 'publish') != 'publish' && ($contentInfo['template'] ?? '') != 'page-whisper.php' && $this->authorId !== $this->user->uid && !$this->user->pass('editor', true));
                             ?>
                             <a <?php echo ($isHidden || $isPrivate) ? '' : 'href="' . $comments->permalink . '" '; ?>title="来自: <?php echo $isPrivate ? '此内容被作者隐藏' : $comments->title ?>"><?php $comments->author(false); ?></a>:
                             <?php $comments->excerpt(35, '...'); ?>

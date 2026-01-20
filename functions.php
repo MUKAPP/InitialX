@@ -590,10 +590,12 @@ function Contents_Post_Initial($limit = 10, $order = 'created'): void
     $posts = $db->fetchAll($db->select()->from('table.contents')
         ->where('type = ? AND status = ? AND created < ?', 'post', 'publish', $options->time)
         ->order($order, Db::SORT_DESC)
-        ->limit($limit), array(Widget::widget('Widget_Abstract_Contents'), 'filter'));
+        ->limit($limit));
     if ($posts) {
         foreach ($posts as $post) {
-            echo '<li><a' . ($post['hidden'] && $options->PjaxOption ? '' : ' href="' . $post['permalink'] . '"') . '>' . htmlspecialchars($post['title']) . '</a></li>' . PHP_EOL;
+            // Typecho 1.3.0 兼容：手动生成 permalink
+            $permalink = \Typecho\Common::url(\Typecho\Router::url('post', $post), $options->index);
+            echo '<li><a href="' . $permalink . '">' . htmlspecialchars($post['title']) . '</a></li>' . PHP_EOL;
         }
     } else {
         echo '<li>暂无文章</li>' . PHP_EOL;
@@ -633,17 +635,23 @@ class Initial_Widget_Comments_Recent extends Comments
 function FindContent($cid): ?array
 {
     $db = Db::get();
-    return $db->fetchRow($db->select()->from('table.contents')
+    $row = $db->fetchRow($db->select()->from('table.contents')
         ->where('cid = ?', $cid)
-        ->limit(1), array(Widget::widget('Widget_Abstract_Contents'), 'filter'));
+        ->limit(1));
+    if ($row) {
+        // Typecho 1.3.0 兼容：手动计算 hidden 状态
+        $row['hidden'] = (strlen($row['password'] ?? '') > 0);
+    }
+    return $row;
 }
 
 function FindContents($val = NULL, $order = 'order', $sort = 'a', $publish = NULL): ?array
 {
     $db = Db::get();
+    $options = Helper::options();
     $sort = ($sort == 'a') ? Db::SORT_ASC : Db::SORT_DESC;
     $select = $db->select()->from('table.contents')
-        ->where('created < ?', Helper::options()->time)
+        ->where('created < ?', $options->time)
         ->order($order, $sort);
     if ($val) {
         $select->where('template = ?', $val);
@@ -651,8 +659,16 @@ function FindContents($val = NULL, $order = 'order', $sort = 'a', $publish = NUL
     if ($publish) {
         $select->where('status = ?', 'publish');
     }
-    $content = $db->fetchAll($select, array(Widget::widget('Widget_Abstract_Contents'), 'filter'));
-    return empty($content) ? NULL : $content;
+    $contents = $db->fetchAll($select);
+    if (!empty($contents)) {
+        // Typecho 1.3.0 兼容：手动生成 permalink
+        foreach ($contents as &$content) {
+            $routeType = ($content['type'] === 'page') ? 'page' : 'post';
+            $content['permalink'] = \Typecho\Common::url(\Typecho\Router::url($routeType, $content), $options->index);
+        }
+        unset($content);
+    }
+    return empty($contents) ? NULL : $contents;
 }
 
 function Whisper($sidebar = NULL): void
