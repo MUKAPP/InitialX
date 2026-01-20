@@ -20,8 +20,8 @@ const excludePatterns = [
   'postcss.config.js',
   '.stylelintrc.json',
   '*.zip',
-  'build.bat',
-  'banner.png'
+  'banner.png',
+  'AGENTS.md'
 ];
 
 // 检查是否应该排除
