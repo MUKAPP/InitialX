@@ -1,6 +1,6 @@
 {
   "name": "initialx-theme",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "InitialX Typecho Theme",
   "private": true,
   "scripts": {
@@ -11,7 +11,8 @@
     "js": "terser src/js/main.js -o dist/main.min.js --compress --mangle",
     "build": "npm run css && npm run js",
     "watch": "concurrently \"npm run sass:watch\" \"nodemon --watch src/js -e js --exec npm run js\"",
-    "pack": "npm run build && node scripts/pack.js",
+    "pack": "node scripts/update-version.js && npm run build && node scripts/pack.js",
+    "version-sync": "node scripts/update-version.js",
     "lint:scss": "stylelint \"src/scss/**/*.scss\""
   },
   "devDependencies": {

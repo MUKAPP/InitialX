@@ -13,7 +13,7 @@ use Utils\Markdown;
 use Widget\Base\Comments;
 
 // InitialX 主题版本号
-define('INITIALX_VERSION_NUMBER', '1.0.0');
+define('INITIALX_VERSION_NUMBER', '1.0.1');
 
 // Gravatar 镜像源设置
 if (Helper::options()->GravatarUrl)
