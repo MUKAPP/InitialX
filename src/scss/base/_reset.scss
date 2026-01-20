@@ -1,0 +1,36 @@
+// ============================================
+// Reset - 重置样式
+// ============================================
+@use "../variables" as *;
+@use "../mixins" as *;
+
+* {
+  // 删除移动端点击高亮
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+html {
+  // 解决锚点元素被顶栏遮挡的问题
+  scroll-padding-top: 56px;
+}
+
+body {
+  font: #{$font-size-base}/#{$line-height-base} #{$font-family-base};
+  margin: 0;
+  color: var(--text-color);
+  background-color: var(--background-color);
+}
+
+ul,
+ol {
+  padding-left: 32px;
+}
+
+ul li p {
+  margin: 0;
+}
+
+li input[type="checkbox"] {
+  vertical-align: middle;
+  margin: 0 4px 0 0;
+}

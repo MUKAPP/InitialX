@@ -1,0 +1,35 @@
+// ============================================
+// CSS Variables - CSS 运行时变量
+// ============================================
+@use "../variables" as *;
+
+:root {
+  --background-color: #{$background-color-light};
+  --header-color: #{$header-color-light};
+  --text-color: #{$text-color-light};
+  --text-color-light: #{$text-color-secondary-light};
+  --text-color-hint: #{$text-color-hint-light};
+  --primary-color: #{$primary-color};
+  --card-color: #{$card-color-light};
+  --card-color-dark: #{$card-color-dark-light};
+  --menu-color: #{$menu-color-light};
+  --float-button-color: #{$float-button-color-light};
+  --link-color: #{$link-color-light};
+  --border-color: #{$border-color-light};
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background-color: #{$background-color-dark};
+    --header-color: #{$header-color-dark};
+    --text-color: #{$text-color-dark};
+    --text-color-light: #{$text-color-secondary-dark};
+    --text-color-hint: #{$text-color-hint-dark};
+    --card-color: #{$card-color-dark-mode};
+    --card-color-dark: #{$card-color-darker};
+    --menu-color: #{$menu-color-dark};
+    --float-button-color: #{$float-button-color-dark};
+    --link-color: #{$link-color-dark};
+    --border-color: #{$border-color-dark};
+  }
+}

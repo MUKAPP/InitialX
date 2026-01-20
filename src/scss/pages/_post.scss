@@ -1,0 +1,159 @@
+// ============================================
+// Post - 文章页样式
+// ============================================
+@use "../variables" as *;
+@use "../mixins" as *;
+
+.post-title {
+  margin: 0 0 0.83em 0;
+  font-size: 1.4em;
+}
+
+h1.post-title {
+  margin: 0 0 0.83em 0;
+  font-size: 1.8em;
+}
+
+.post-meta {
+  margin-top: -0.4em;
+  margin-bottom: -0.2em;
+  padding: 0;
+  color: var(--text-color-light);
+  font-size: $font-size-md;
+  
+  li {
+    display: inline-block;
+    margin-right: 6px;
+  }
+}
+
+.post-content {
+  line-height: $line-height-content;
+  word-wrap: break-word;
+  
+  a {
+    color: var(--link-color);
+    border-bottom: 0;
+    
+    &:hover {
+      color: var(--primary-color);
+      border: 0;
+    }
+  }
+  
+  img,
+  video {
+    max-width: 100%;
+    max-height: 61vh;
+    border-radius: $border-radius-sm;
+  }
+  
+  hr {
+    margin: 1.4em auto;
+    width: 160px;
+    border: 1px solid var(--border-color);
+    border-width: 2px 0 0 0;
+    border-radius: 1px;
+  }
+  
+  .word {
+    display: inline;
+  }
+  
+  .thumb {
+    text-align: center;
+  }
+  
+  .more {
+    width: fit-content;
+    padding: 8px 12px;
+    margin: 0;
+    background: #00000010;
+    border-radius: $border-radius-pill;
+    
+    a {
+      color: var(--text-color-light);
+      @include transition;
+    }
+  }
+  
+  .cl-offset {
+    position: relative;
+    display: block;
+    top: -10px;
+    height: 0;
+    border: 0;
+  }
+}
+
+// 密码保护
+.protected input {
+  width: auto;
+}
+
+// 打赏
+.rewards {
+  position: relative;
+  clear: both;
+  
+  a {
+    color: var(--link-color);
+    border: 0;
+    cursor: pointer;
+    
+    &:hover {
+      color: var(--primary-color);
+      
+      img {
+        visibility: visible;
+        opacity: 1;
+      }
+    }
+  }
+  
+  img {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    margin: -15% 0 0 -15%;
+    padding: 5px;
+    max-width: 30%;
+    background: #eee;
+    visibility: hidden;
+    opacity: 0;
+    @include transition($transition-fast);
+  }
+}
+
+// 标签
+.tags {
+  clear: both;
+  
+  a {
+    color: var(--link-color);
+    border: 0;
+    
+    &:hover {
+      color: var(--primary-color);
+    }
+  }
+}
+
+// 许可信息
+.license {
+  font-size: $font-size-sm;
+  color: var(--text-color-hint);
+  margin: 0;
+}
+
+// 上下篇文章
+.post-near {
+  list-style: none;
+  margin: 30px 0;
+  padding: 0;
+  color: var(--text-color-hint);
+  
+  li {
+    margin: 10px 0;
+  }
+}

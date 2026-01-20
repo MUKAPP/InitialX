@@ -1,0 +1,164 @@
+// ============================================
+// Mixins - 常用混合器
+// ============================================
+
+// 断点值
+$_bp-xs: 420px !default;
+$_bp-sm: 600px !default;
+$_bp-md: 768px !default;
+$_bp-lg: 990px !default;
+$_bp-xl: 1170px !default;
+
+// 默认值
+$_transition-fast: 0.2s !default;
+$_transition-base: 0.3s !default;
+$_border-radius-lg: 24px !default;
+$_border-radius-md: 16px !default;
+$_shadow-lg: 0px 1px 2px #00000010, 0px 4px 6px #00000010 !default;
+$_shadow-hover: 0px 2px 6px #00000010, 1px 6px 12px 0 #00000010 !default;
+
+// --------------------------------------------
+// 响应式断点
+// --------------------------------------------
+@mixin respond-to($breakpoint) {
+  @if $breakpoint == xs {
+    @media (max-width: $_bp-xs) { @content; }
+  } @else if $breakpoint == sm {
+    @media (max-width: $_bp-sm) { @content; }
+  } @else if $breakpoint == md {
+    @media (max-width: $_bp-md) { @content; }
+  } @else if $breakpoint == lg {
+    @media (max-width: $_bp-lg) { @content; }
+  } @else if $breakpoint == xl {
+    @media (max-width: $_bp-xl) { @content; }
+  }
+}
+
+@mixin respond-above($breakpoint) {
+  @if $breakpoint == sm {
+    @media (min-width: #{$_bp-sm + 1px}) { @content; }
+  }
+}
+
+// --------------------------------------------
+// 清除浮动
+// --------------------------------------------
+@mixin clearfix {
+  zoom: 1;
+  
+  &::before,
+  &::after {
+    content: "";
+    display: table;
+  }
+  
+  &::after {
+    clear: both;
+  }
+}
+
+// --------------------------------------------
+// 过渡动画
+// --------------------------------------------
+@mixin transition($duration: $_transition-base) {
+  transition: $duration;
+  -webkit-transition: $duration;
+}
+
+// --------------------------------------------
+// 变换
+// --------------------------------------------
+@mixin transform($value) {
+  transform: $value;
+  -webkit-transform: $value;
+  -ms-transform: $value;
+}
+
+// --------------------------------------------
+// 文本截断
+// --------------------------------------------
+@mixin text-ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+// --------------------------------------------
+// 卡片样式
+// --------------------------------------------
+@mixin card($radius: $_border-radius-lg) {
+  background: var(--card-color);
+  border-radius: $radius;
+}
+
+// --------------------------------------------
+// 按钮基础样式
+// --------------------------------------------
+@mixin button-base {
+  padding: 0 6px;
+  background: var(--card-color);
+  border: 0;
+  cursor: pointer;
+  color: var(--text-color);
+  @include transition;
+  
+  &:hover {
+    background: var(--primary-color);
+    color: #fff;
+  }
+}
+
+// --------------------------------------------
+// 悬浮按钮
+// --------------------------------------------
+@mixin float-button {
+  background: var(--float-button-color);
+  box-shadow: $_shadow-lg;
+  border-radius: $_border-radius-md;
+  
+  &:hover {
+    box-shadow: $_shadow-hover;
+  }
+}
+
+// --------------------------------------------
+// 链接样式
+// --------------------------------------------
+@mixin link-base {
+  color: var(--text-color-light);
+  border: 0;
+  text-decoration: none;
+  @include transition;
+}
+
+@mixin link-hover {
+  color: var(--primary-color);
+}
+
+// --------------------------------------------
+// 滚动条样式
+// --------------------------------------------
+@mixin custom-scrollbar($width: 6px) {
+  &::-webkit-scrollbar {
+    width: $width;
+    height: $width;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    border-radius: calc($width / 2);
+    background-color: var(--text-color-hint);
+  }
+}
+
+// --------------------------------------------
+// 动画关键帧
+// --------------------------------------------
+@mixin keyframes($name) {
+  @keyframes #{$name} {
+    @content;
+  }
+  
+  @-webkit-keyframes #{$name} {
+    @content;
+  }
+}

@@ -1,0 +1,75 @@
+// ============================================
+// Header - 头部布局
+// ============================================
+@use "../variables" as *;
+@use "../mixins" as *;
+
+#header {
+  line-height: $header-height;
+  padding: 15px 0;
+}
+
+.site-name {
+  float: left;
+  
+  .site-title {
+    height: $header-height;
+    font-size: 1.6em;
+    margin: 0;
+    font-weight: normal;
+    display: flex;
+    align-items: center;
+  }
+}
+
+#logo {
+  display: flex;
+  align-items: center;
+  color: var(--primary-color);
+  
+  img {
+    display: block;
+    max-height: 30px;
+    margin-right: 5px;
+  }
+}
+
+// 头部固定
+.head-fixed {
+  .browsehappy {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+  }
+  
+  #header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    background: var(--header-color);
+    backdrop-filter: blur(10px) saturate(180%);
+  }
+  
+  #body {
+    padding-top: 71px;
+  }
+  
+  .cl-offset {
+    top: -51px;
+  }
+}
+
+// 浏览器升级提示
+.browsehappy {
+  padding: 8px 0;
+  background: #fbe3e4;
+  color: #8a1f11;
+  text-align: center;
+  
+  a {
+    color: #8a1f11;
+    text-decoration: underline;
+    font-weight: bold;
+  }
+}

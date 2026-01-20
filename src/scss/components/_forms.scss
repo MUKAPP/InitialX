@@ -1,0 +1,78 @@
+// ============================================
+// Forms - 表单组件
+// ============================================
+@use "../variables" as *;
+@use "../mixins" as *;
+
+input[type="text"],
+input[type="email"],
+input[type="url"],
+input[type="submit"],
+textarea,
+button {
+  font-family: inherit;
+  font-size: 100%;
+  line-height: $line-height-base;
+  margin: 0;
+  outline: 0;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="url"],
+input[type="submit"],
+textarea {
+  padding: 5px;
+  border: none;
+  width: 100%;
+  box-shadow: none;
+  box-sizing: border-box;
+  color: var(--text-color);
+}
+
+input[type="text"],
+input[type="email"],
+input[type="url"],
+textarea {
+  &::placeholder {
+    color: var(--text-color-hint);
+  }
+}
+
+textarea {
+  height: 199px;
+  resize: vertical;
+  overflow: auto;
+}
+
+// 评论表单
+.respond {
+  input,
+  textarea {
+    background: var(--card-color);
+    border-radius: $border-radius-md;
+    border: none;
+    padding: 12px 16px;
+    @include transition;
+    
+    &:hover,
+    &:focus {
+      background: var(--card-color-dark);
+    }
+  }
+  
+  textarea {
+    padding: $spacing-md;
+  }
+}
+
+// Cloudflare Turnstile 验证码
+#cf-turnstile {
+  text-align: center;
+}
+
+#captcha {
+  margin-top: 12px;
+}

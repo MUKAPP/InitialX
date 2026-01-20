@@ -1,0 +1,74 @@
+// ============================================
+// Code - 代码块组件
+// ============================================
+@use "../variables" as *;
+@use "../mixins" as *;
+
+pre:has(code),
+code {
+  font-family: $font-family-mono;
+  font-size: 0.9em;
+}
+
+code {
+  padding: 2px 6px;
+  color: #c9d1d9;
+  background: #0d1117;
+  border-radius: $border-radius-sm;
+}
+
+pre:has(code) {
+  overflow: auto;
+  max-height: 400px;
+}
+
+pre code {
+  display: block;
+  padding: 1em;
+  color: #abb2bf;
+}
+
+// Mermaid.js 图表样式例外
+pre.mermaid,
+code.mermaid,
+code.language-mermaid,
+.mermaid code,
+pre:has(code.language-mermaid) {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  display: block;
+  overflow: visible;
+  max-height: none;
+}
+
+pre.mermaid code,
+code.mermaid,
+code.language-mermaid {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  border-radius: 0;
+}
+
+// 复制按钮
+.copy-button {
+  position: absolute;
+  right: $spacing-sm;
+  top: $spacing-sm;
+  background: #eaeaea;
+  color: #212121;
+  padding: 2px 8px;
+  border-radius: $border-radius-xs;
+  cursor: pointer;
+  box-shadow: $shadow-sm;
+  font-family: initial;
+  @include transition;
+  
+  &:hover {
+    background: var(--primary-color);
+    color: #fff;
+  }
+}

@@ -1,0 +1,82 @@
+// ============================================
+// Grid - 布局网格
+// ============================================
+@use "../variables" as *;
+@use "../mixins" as *;
+
+.container {
+  max-width: $container-max-width;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: $spacing-lg;
+  padding-right: $spacing-lg;
+  @include transition;
+}
+
+.clearfix {
+  @include clearfix;
+}
+
+#main {
+  float: left;
+  width: $main-width;
+  
+  & > *:not(.breadcrumbs) {
+    animation: pin 0.3s;
+    -webkit-animation: pin 0.3s;
+  }
+}
+
+.one-col #main {
+  float: none;
+  margin: 0 auto;
+  width: 750px;
+  
+  .post {
+    border-bottom: 1px solid #eee;
+    
+    &:last-of-type {
+      border: 0;
+    }
+  }
+}
+
+.breadcrumbs {
+  margin: 12px 0;
+  color: var(--text-color-light);
+}
+
+// 加载动画
+#loading-bar,
+.loading::after {
+  position: fixed;
+  top: 0;
+  height: 3px;
+  background: var(--primary-color);
+  animation: loading 1s infinite;
+  -webkit-animation: loading 1s infinite;
+}
+
+@include keyframes(loading) {
+  0% {
+    right: 50%;
+    left: 50%;
+  }
+  30% {
+    right: 0;
+    left: 0;
+  }
+  100% {
+    right: 50%;
+    left: 50%;
+  }
+}
+
+@include keyframes(pin) {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}

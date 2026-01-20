@@ -1,0 +1,190 @@
+// ============================================
+// Responsive - 响应式样式
+// ============================================
+@use "variables" as *;
+@use "mixins" as *;
+
+// 桌面端
+@include respond-above(sm) {
+  .on .nav-menu {
+    visibility: hidden;
+    opacity: 0;
+  }
+  
+  .menu-parent .menu-parent .menu-child {
+    top: 5px;
+    left: -30px;
+    @include transform(translateX(-100%));
+    
+    &::before {
+      top: 7px;
+      left: 100%;
+      margin: 0;
+      border-top: 7px solid transparent;
+      border-bottom: 7px solid transparent;
+      border-left: 7px solid rgba(221, 221, 221, 0.95);
+    }
+  }
+  
+  .menu-parent .menu-parent:hover > .menu-child {
+    left: -7px;
+  }
+}
+
+// 大屏幕
+@include respond-to(xl) {
+  #catalog-col {
+    right: 65px;
+    margin: 0;
+    
+    &.catalog {
+      right: 86px;
+      margin: 0;
+    }
+  }
+  
+  #cornertool {
+    right: 24px;
+    margin: 0;
+  }
+}
+
+// 中等屏幕
+@include respond-to(lg) {
+  #secondary {
+    margin-left: 72%;
+  }
+}
+
+#thirty {
+  display: none;
+}
+
+// 平板
+@include respond-to(md) {
+  #main,
+  .one-col #main {
+    width: 100%;
+  }
+  
+  #secondary {
+    display: none;
+  }
+  
+  #thirty {
+    display: block;
+  }
+}
+
+// 移动端
+@include respond-to(sm) {
+  .container {
+    padding-left: $spacing-md;
+    padding-right: $spacing-md;
+  }
+  
+  #nav-swith {
+    margin: 0;
+    
+    &::before,
+    &::after {
+      left: 6px;
+      width: 18px;
+      height: 2px;
+      background: currentColor;
+      border: 0;
+      border-radius: 0;
+      transform: none;
+      -ms-transform: none;
+      -webkit-transform: none;
+    }
+    
+    &::after {
+      top: 21px;
+    }
+    
+    span {
+      visibility: visible;
+    }
+  }
+  
+  .on #nav-swith span {
+    visibility: hidden;
+    opacity: 0;
+  }
+  
+  #nav {
+    width: 100%;
+    max-height: 0;
+    overflow: hidden;
+    text-align: center;
+  }
+  
+  .on #nav {
+    max-height: 240px;
+  }
+  
+  .head-fixed .on #nav {
+    margin-bottom: 5px;
+  }
+  
+  .nav-menu {
+    max-height: 200px;
+    overflow: auto;
+    
+    li,
+    a {
+      display: block;
+    }
+    
+    a:hover {
+      font-weight: bold;
+      border: 0;
+    }
+  }
+  
+  .menu-parent {
+    ul {
+      position: relative;
+      left: 0;
+      margin: 0 auto;
+      width: 75%;
+      visibility: visible;
+      opacity: 1;
+      transform: none;
+      -webkit-transform: none;
+    }
+    
+    .menu-parent .menu-child::before {
+      border-bottom: 7px solid rgba(221, 221, 221, 0.95);
+    }
+  }
+  
+  #site-search {
+    position: static;
+    width: 50%;
+    margin: 0 auto;
+  }
+  
+  .post-content .links li {
+    width: 33.33333%;
+  }
+  
+  .comment-form {
+    .textarea {
+      width: 100%;
+      margin: 0 0 8px 0;
+    }
+    
+    .textbutton {
+      width: 100%;
+    }
+  }
+}
+
+// 小屏手机
+@include respond-to(xs) {
+  .post-content .links li {
+    width: 50%;
+  }
+}

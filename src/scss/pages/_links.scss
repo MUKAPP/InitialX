@@ -1,0 +1,60 @@
+// ============================================
+// Links - 链接页样式
+// ============================================
+@use "../variables" as *;
+@use "../mixins" as *;
+
+.post-content .links {
+  letter-spacing: -9em;
+  list-style: none;
+  padding: 0;
+  
+  li {
+    display: inline-table;
+    letter-spacing: 0;
+  }
+  
+  a {
+    display: block;
+    height: 40px;
+    line-height: 40px;
+    margin: 6px;
+    padding: 0 12px;
+    color: var(--text-color);
+    background: var(--card-color);
+    border-radius: $border-radius-sm;
+    @include text-ellipsis;
+    @include transition;
+    
+    &:hover {
+      background: var(--card-color-dark);
+      color: var(--primary-color);
+    }
+  }
+  
+  .l_logo {
+    padding-left: 52px;
+  }
+}
+
+.l_logo {
+  position: relative;
+  
+  img,
+  i {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 40px;
+    height: 40px;
+    background: #ccc;
+    overflow: hidden;
+    text-align: center;
+    align-content: center;
+    border-radius: 0;
+  }
+  
+  i {
+    font: 24px/1 "Segoe UI Symbol";
+  }
+}

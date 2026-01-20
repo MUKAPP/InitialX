@@ -1,0 +1,216 @@
+// ============================================
+// Navigation - 导航样式
+// ============================================
+@use "../variables" as *;
+@use "../mixins" as *;
+
+#nav-swith {
+  position: relative;
+  float: right;
+  margin-left: 5px;
+  color: var(--text-color-light);
+  top: 5px;
+  right: 0;
+  width: 30px;
+  height: 30px;
+  background: 0;
+  
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    top: 7px;
+    left: 7px;
+    width: 9px;
+    height: 9px;
+    border: solid 2px currentColor;
+    border-radius: 50%;
+    @include transition($transition-fast);
+  }
+  
+  &::after {
+    top: 19px;
+    left: 17px;
+    width: 6px;
+    height: 2px;
+    background: currentColor;
+    border: 0;
+    border-radius: 0;
+    @include transform(rotate(45deg));
+  }
+  
+  span {
+    display: block;
+    width: 18px;
+    height: 2px;
+    background: currentColor;
+    visibility: hidden;
+    @include transition($transition-fast);
+  }
+}
+
+// 菜单打开状态
+.on {
+  #nav-swith {
+    &::before,
+    &::after {
+      position: absolute;
+      top: 14px;
+      left: 6px;
+      width: 18px;
+      height: 2px;
+      background: currentColor;
+      border: 0;
+      border-radius: 0;
+    }
+    
+    &::before {
+      @include transform(rotate(-45deg));
+    }
+    
+    &::after {
+      @include transform(rotate(45deg));
+    }
+  }
+  
+  #site-search {
+    top: 0;
+    visibility: visible;
+    opacity: 1;
+  }
+}
+
+#nav {
+  position: relative;
+  float: right;
+}
+
+// 搜索框
+#site-search {
+  position: absolute;
+  top: -10px;
+  right: 16px;
+  width: 256px;
+  visibility: hidden;
+  opacity: 0;
+  @include transition($transition-fast);
+}
+
+#search {
+  position: relative;
+  background: var(--card-color);
+  border-radius: $border-radius-pill;
+  padding: 0 8px;
+  
+  input {
+    padding-right: 38px;
+    background: 0;
+    text-align: left;
+  }
+  
+  button {
+    position: absolute;
+    color: var(--primary-color);
+    right: 12px;
+    top: 5px;
+    width: 30px;
+    height: 30px;
+    background: 0;
+    
+    &::before {
+      content: "";
+      position: absolute;
+      top: 7px;
+      left: 7px;
+      width: 9px;
+      height: 9px;
+      border: solid 2px currentColor;
+      border-radius: 50%;
+    }
+    
+    &::after {
+      content: "";
+      position: absolute;
+      top: 19px;
+      left: 17px;
+      width: 6px;
+      height: 2px;
+      background: currentColor;
+      @include transform(rotate(45deg));
+    }
+  }
+}
+
+// 导航菜单
+.nav-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  @include custom-scrollbar;
+  @include transition($transition-fast);
+  
+  li {
+    display: inline-block;
+  }
+  
+  a {
+    padding: 8px 16px;
+    border-radius: $border-radius-pill;
+    
+    &:hover {
+      background: var(--card-color);
+    }
+  }
+  
+  ul a {
+    color: var(--text-color-light);
+    
+    &:hover {
+      color: var(--primary-color);
+      border: 0;
+    }
+  }
+}
+
+// 下拉菜单
+.menu-parent {
+  position: relative;
+  
+  ul {
+    position: absolute;
+    left: 50%;
+    min-width: 128px;
+    padding: 12px 0;
+    border-radius: $border-radius-md;
+    background: var(--menu-color);
+    box-shadow: $shadow-md;
+    text-align: center;
+    list-style: none;
+    visibility: hidden;
+    opacity: 0;
+    @include transform(translateX(-50%));
+    @include transition($transition-fast);
+  }
+  
+  &:hover > ul {
+    visibility: visible;
+    opacity: 1;
+  }
+  
+  li {
+    display: block;
+  }
+  
+  ul a {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    padding: 4px 0;
+    border-radius: 0;
+  }
+  
+  .menu-parent .menu-child {
+    background: rgba(221, 221, 221, 0.95);
+  }
+}

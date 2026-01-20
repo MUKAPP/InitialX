@@ -1,0 +1,161 @@
+// ============================================
+// Corner Tool - 角落工具
+// ============================================
+@use "../variables" as *;
+@use "../mixins" as *;
+
+#cornertool {
+  position: fixed;
+  bottom: $spacing-lg;
+  z-index: 999;
+  right: 50%;
+  margin-right: -580px;
+  
+  ul {
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    list-style: none;
+  }
+  
+  li {
+    position: relative;
+    display: block;
+    left: 0;
+    width: 56px;
+    height: 56px;
+    line-height: 56px;
+    margin-top: 8px;
+    color: var(--primary-color);
+    @include float-button;
+    @include transition($transition-fast);
+    cursor: pointer;
+    
+    &::before {
+      display: block;
+    }
+  }
+  
+  .hidden {
+    left: 20px;
+    visibility: hidden;
+    opacity: 0;
+  }
+}
+
+// 返回顶部
+#top {
+  &::before {
+    content: "▲";
+  }
+  
+  &:hover::before {
+    content: "Top";
+  }
+}
+
+// 音乐播放器
+#music {
+  &::before {
+    content: "♫";
+  }
+  
+  &:hover::before {
+    content: "▲";
+    @include transform(rotate(90deg));
+  }
+  
+  &.play {
+    &::before {
+      animation: play 5s linear infinite;
+      -webkit-animation: play 5s linear infinite;
+    }
+    
+    &:hover::before {
+      content: "〓";
+      animation: 0;
+      -webkit-animation: 0;
+    }
+    
+    span {
+      width: 100%;
+      
+      i {
+        display: block;
+        height: 100%;
+        width: 0;
+        background: #eee;
+      }
+    }
+  }
+  
+  span {
+    position: absolute;
+    display: block;
+    bottom: 0;
+    height: 5px;
+    width: 0;
+    background: #666;
+    opacity: 0.7;
+    @include transition($transition-fast);
+  }
+}
+
+// 目录按钮
+#catalog {
+  span,
+  &::before,
+  &::after {
+    position: absolute;
+    display: block;
+    top: 50%;
+    left: 50%;
+    margin: -1px 0 0 -6px;
+    width: 12px;
+    height: 1px;
+    background: currentColor;
+    @include transition($transition-fast);
+  }
+  
+  &::before {
+    content: "";
+    margin-top: -5px;
+  }
+  
+  &::after {
+    content: "";
+    margin-top: 3px;
+  }
+  
+  span {
+    @include transition($transition-fast);
+  }
+  
+  &.catalog {
+    left: -5px;
+    
+    span {
+      @include transform(rotate(90deg));
+    }
+    
+    &::before {
+      margin: -4px 0 0 -11px;
+      @include transform(rotate(-30deg));
+    }
+    
+    &::after {
+      margin: 2px 0 0 -11px;
+      @include transform(rotate(30deg));
+    }
+  }
+}
+
+// 播放动画
+@include keyframes(play) {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

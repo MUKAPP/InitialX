@@ -1,0 +1,68 @@
+// ============================================
+// Pagination - 分页组件
+// ============================================
+@use "../variables" as *;
+@use "../mixins" as *;
+
+.page-navigator {
+  list-style: none;
+  margin: 25px 0;
+  padding: 0;
+  text-align: center;
+  
+  li {
+    display: inline-block;
+    margin: 0 5px;
+    height: 24px;
+    line-height: 24px;
+  }
+  
+  a {
+    padding: 0 2px;
+  }
+  
+  .current a {
+    color: #444;
+    border-bottom: 1px solid #444;
+  }
+}
+
+// Ajax 加载更多
+.ajaxload {
+  li {
+    display: none;
+  }
+  
+  .next {
+    display: block;
+  }
+  
+  a {
+    padding: 10px 24px;
+    border-radius: $border-radius-pill;
+    background: var(--card-color);
+    @include transition;
+    
+    &:hover {
+      background: var(--primary-color);
+      color: white;
+    }
+  }
+  
+  .loading,
+  .loading:hover {
+    padding: 10px 24px;
+    border-radius: $border-radius-pill;
+    background: var(--card-color);
+    color: var(--primary-color);
+    @include transition;
+  }
+}
+
+.word.loading {
+  padding: 10px 24px;
+  border-radius: $border-radius-pill;
+  background: var(--card-color);
+  color: var(--primary-color);
+  @include transition;
+}

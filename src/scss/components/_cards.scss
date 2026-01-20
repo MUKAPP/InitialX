@@ -1,0 +1,78 @@
+// ============================================
+// Cards - 卡片组件
+// ============================================
+@use "../variables" as *;
+@use "../mixins" as *;
+
+.post {
+  margin: $spacing-md 0;
+  padding: $spacing-lg;
+  @include card;
+  
+  &.list-post {
+    @include transition(0.3s ease-in-out);
+    cursor: pointer;
+    
+    &:hover {
+      background: var(--card-color-dark);
+    }
+    
+    a {
+      color: var(--text-color);
+    }
+    
+    p {
+      margin-bottom: unset;
+    }
+    
+    img {
+      width: 100%;
+      aspect-ratio: 1 / 0.4;
+      object-fit: cover;
+    }
+  }
+}
+
+.widget {
+  margin-bottom: $spacing-md;
+  padding: $spacing-lg;
+  @include card;
+}
+
+.widget-title {
+  font-size: 1.3em;
+  margin-top: unset;
+}
+
+.widget-list {
+  margin-bottom: unset;
+  list-style: none;
+  padding: 0;
+  
+  li {
+    margin: 5px 0;
+    line-height: $line-height-content;
+    
+    &:last-child {
+      margin-bottom: unset;
+    }
+    
+    ul {
+      margin-left: 15px;
+    }
+  }
+}
+
+.widget-tile {
+  margin-bottom: unset;
+  margin-left: -5px;
+  margin-right: -5px;
+  list-style: none;
+  padding: 0;
+  
+  li {
+    display: inline-block;
+    margin: 5px;
+    line-height: $line-height-content;
+  }
+}

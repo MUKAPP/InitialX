@@ -1,0 +1,97 @@
+// ============================================
+// Variables - 变量定义
+// ============================================
+
+// --------------------------------------------
+// 颜色系统
+// --------------------------------------------
+
+// 浅色模式
+$background-color-light: #ffffff;
+$header-color-light: #ffffffcf;
+$text-color-light: #212121;
+$text-color-secondary-light: #212121d9;
+$text-color-hint-light: #21212180;
+$primary-color: #cb82be;
+$card-color-light: #00000010;
+$card-color-dark-light: #00000021;
+$menu-color-light: #eaeaea;
+$float-button-color-light: #ffffff;
+$link-color-light: #4527A0;
+$border-color-light: #0000003f;
+
+// 深色模式
+$background-color-dark: #101010;
+$header-color-dark: #101010cf;
+$text-color-dark: #ffffff;
+$text-color-secondary-dark: #ffffffd9;
+$text-color-hint-dark: #ffffff80;
+$card-color-dark-mode: #ffffff21;
+$card-color-darker: #ffffff3f;
+$menu-color-dark: #424242;
+$float-button-color-dark: #424242;
+$link-color-dark: #9FA8DA;
+$border-color-dark: #ffffff3f;
+
+// --------------------------------------------
+// 断点
+// --------------------------------------------
+$breakpoint-xs: 420px;
+$breakpoint-sm: 600px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 990px;
+$breakpoint-xl: 1170px;
+
+// --------------------------------------------
+// 间距
+// --------------------------------------------
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+
+// --------------------------------------------
+// 圆角
+// --------------------------------------------
+$border-radius-xs: 4px;
+$border-radius-sm: 8px;
+$border-radius-md: 16px;
+$border-radius-lg: 24px;
+$border-radius-pill: 50vh;
+
+// --------------------------------------------
+// 字体
+// --------------------------------------------
+$font-family-base: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", "Source Han Sans SC", "Noto Sans CJK SC", "WenQuanYi Micro Hei", sans-serif;
+$font-family-mono: Consolas, Inconsolata, Courier, monospace, "PingFang SC", "Microsoft YaHei", sans-serif;
+
+$font-size-base: 15px;
+$font-size-sm: 0.8em;
+$font-size-md: 0.9em;
+$font-size-lg: 1.1em;
+
+$line-height-base: 1.2;
+$line-height-content: 1.6;
+
+// --------------------------------------------
+// 过渡动画
+// --------------------------------------------
+$transition-fast: 0.2s;
+$transition-base: 0.3s;
+
+// --------------------------------------------
+// 阴影
+// --------------------------------------------
+$shadow-sm: 0 0 2px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.05);
+$shadow-md: 0px 0px 2px #00000010, 0px 2px 6px #00000010;
+$shadow-lg: 0px 1px 2px #00000010, 0px 4px 6px #00000010;
+$shadow-hover: 0px 2px 6px #00000010, 1px 6px 12px 0 #00000010;
+
+// --------------------------------------------
+// 布局
+// --------------------------------------------
+$container-max-width: 1060px;
+$header-height: 40px;
+$sidebar-width: 26%;
+$main-width: 70%;

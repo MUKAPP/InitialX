@@ -1,0 +1,82 @@
+// ============================================
+// Elements - 基础元素样式
+// ============================================
+@use "../variables" as *;
+@use "../mixins" as *;
+
+// --------------------------------------------
+// 表格
+// --------------------------------------------
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: $border-radius-sm;
+  overflow: hidden;
+  
+  th,
+  td {
+    padding: 6px 12px;
+    background: var(--card-color);
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  th {
+    border-bottom: 2px solid var(--border-color);
+  }
+  
+  td {
+    border-right: 1px solid var(--border-color);
+    
+    &:last-child {
+      border-right: none;
+    }
+  }
+  
+  tr:last-child td {
+    border-bottom: none;
+  }
+  
+  thead {
+    background: var(--card-color);
+  }
+}
+
+// --------------------------------------------
+// 引用块
+// --------------------------------------------
+blockquote {
+  margin: 1em 0;
+  padding: $spacing-sm $spacing-md;
+  background: var(--card-color);
+  border-left: 4px solid var(--primary-color);
+  color: var(--text-color-light);
+  border-radius: $border-radius-sm;
+  
+  p {
+    margin-block: 0;
+  }
+  
+  blockquote {
+    margin: 0.5em 0;
+  }
+}
+
+// --------------------------------------------
+// 水平线
+// --------------------------------------------
+hr {
+  margin: 1.4em auto;
+  width: 160px;
+  border: 1px solid var(--border-color);
+  border-width: 2px 0 0 0;
+  border-radius: 1px;
+}
+
+// --------------------------------------------
+// 图片和视频
+// --------------------------------------------
+img,
+video {
+  max-width: 100%;
+}

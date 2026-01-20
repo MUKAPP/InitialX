@@ -1,0 +1,140 @@
+// ============================================
+// Whisper - 轻语样式
+// ============================================
+@use "../variables" as *;
+@use "../mixins" as *;
+
+.post.whisper {
+  min-height: 40px;
+  margin: 2.2em 0 15px;
+  padding: 0 1em;
+  text-align: center;
+  border: 1px solid #444;
+  border-radius: 2px;
+  
+  .post-title {
+    font-size: 1em;
+    line-height: 1.5;
+    font-weight: normal;
+    margin: 0 -1em;
+    
+    a {
+      display: block;
+      padding: 2px 1em;
+      color: #fff;
+      background: #444;
+      @include transition;
+      
+      &:hover {
+        background: #000;
+      }
+    }
+    
+    .more {
+      position: relative;
+      float: right;
+    }
+  }
+  
+  .post-content pre {
+    text-align: left;
+  }
+  
+  .notice {
+    display: block;
+    font-size: $font-size-md;
+    padding: 5px;
+    color: #f44336;
+    border: 1px solid;
+    border-radius: 2px;
+  }
+}
+
+.whisper {
+  .whisper-body {
+    padding: 20px 10px;
+    background: 0;
+    border: 0;
+    border-bottom: 1px solid #eee;
+    
+    &:last-child {
+      border: 0;
+    }
+    
+    & > div > .comment-content,
+    .comment-meta,
+    .comment-children {
+      margin: 1em 0 0 42px;
+    }
+  }
+  
+  .comment-author {
+    margin: 0;
+  }
+  
+  .comment-meta {
+    position: relative;
+    
+    .whisper-reply {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      font-size: $font-size-md;
+      cursor: pointer;
+    }
+  }
+  
+  .comment-body,
+  .comment-parent > .comment-whisper {
+    font-size: 0.94em;
+    margin: 0;
+    padding: 0;
+    background: 0;
+    border: 0;
+  }
+  
+  .comment-parent,
+  .comment-whisper {
+    margin-top: 2px;
+    padding: 2px 5px;
+    background: #e6e6e6;
+    border: 0;
+    border-radius: 2px;
+  }
+  
+  .comment-body {
+    .comment-content {
+      line-height: 20px;
+    }
+    
+    .avatar {
+      margin: 2px 5px 0 0;
+    }
+  }
+  
+  .comment-parent > .comment-children {
+    margin-left: 5px;
+  }
+  
+  .comment-parent.comment-by-author,
+  .comment-by-author > .comment-whisper {
+    position: relative;
+    background: #f2f7fc;
+  }
+  
+  .comment-list .respond,
+  &.permission .respond {
+    display: block;
+  }
+  
+  .respond {
+    display: none;
+  }
+  
+  img,
+  video {
+    max-width: 100%;
+    max-height: 61vh;
+    border-radius: $border-radius-sm;
+  }
+}

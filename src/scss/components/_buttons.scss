@@ -1,0 +1,10 @@
+// ============================================
+// Buttons - 按钮组件
+// ============================================
+@use "../variables" as *;
+@use "../mixins" as *;
+
+button,
+input[type="submit"] {
+  @include button-base;
+}

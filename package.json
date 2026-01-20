@@ -1,0 +1,30 @@
+{
+  "name": "initialx-theme",
+  "version": "1.0.0",
+  "description": "InitialX Typecho Theme",
+  "private": true,
+  "scripts": {
+    "sass": "sass src/scss/main.scss:dist/style.css --no-source-map",
+    "sass:watch": "sass src/scss/main.scss:dist/style.css --watch --no-source-map",
+    "postcss": "postcss dist/style.css -o dist/style.min.css",
+    "css": "npm run sass && npm run postcss",
+    "js": "terser src/js/main.js -o dist/main.min.js --compress --mangle",
+    "build": "npm run css && npm run js",
+    "watch": "concurrently \"npm run sass:watch\" \"nodemon --watch src/js -e js --exec npm run js\"",
+    "pack": "npm run build && node scripts/pack.js",
+    "lint:scss": "stylelint \"src/scss/**/*.scss\""
+  },
+  "devDependencies": {
+    "sass": "^1.77.0",
+    "postcss": "^8.4.38",
+    "postcss-cli": "^11.0.0",
+    "autoprefixer": "^10.4.19",
+    "cssnano": "^7.0.1",
+    "terser": "^5.31.0",
+    "concurrently": "^8.2.2",
+    "nodemon": "^3.1.0",
+    "archiver": "^7.0.1",
+    "stylelint": "^16.5.0",
+    "stylelint-config-standard-scss": "^13.1.0"
+  }
+}

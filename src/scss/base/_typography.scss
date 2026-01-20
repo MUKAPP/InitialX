@@ -1,0 +1,47 @@
+// ============================================
+// Typography - 排版样式
+// ============================================
+@use "../variables" as *;
+@use "../mixins" as *;
+
+h1 {
+  font-size: 1.8em;
+  margin-block-end: 0;
+}
+
+h2 {
+  font-size: 1.55em;
+  margin-block-end: 0;
+}
+
+h3 {
+  font-size: 1.3em;
+  margin-block-end: 0;
+}
+
+#comments h3 {
+  margin-block-end: 1em;
+}
+
+h4 {
+  font-size: 1.1em;
+  margin-block-end: 0;
+}
+
+h5 {
+  font-size: 0.9em;
+  margin-block-end: 0;
+}
+
+h6 {
+  font-size: 0.8em;
+  margin-block-end: 0;
+}
+
+a {
+  @include link-base;
+  
+  &:hover {
+    @include link-hover;
+  }
+}

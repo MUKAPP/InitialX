@@ -1,0 +1,37 @@
+// ============================================
+// Footer - 页脚布局
+// ============================================
+@use "../variables" as *;
+@use "../mixins" as *;
+
+#footer {
+  font-size: $font-size-sm;
+  padding: 2em 0;
+  line-height: 1.5;
+  text-align: center;
+  border-top: 1px solid var(--border-color);
+  
+  p {
+    margin: 0;
+  }
+  
+  .links {
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    list-style: none;
+    
+    li {
+      display: inline-block;
+      margin: 0 3px 2px;
+    }
+    
+    a:hover {
+      color: var(--primary-color);
+    }
+  }
+}
+
+.icpnum:hover {
+  color: var(--primary-color);
+}

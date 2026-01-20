@@ -1,0 +1,20 @@
+// ============================================
+// Sidebar - 侧边栏布局
+// ============================================
+@use "../variables" as *;
+@use "../mixins" as *;
+
+#secondary {
+  margin-left: 74%;
+  padding-top: 15px;
+  word-wrap: break-word;
+  
+  .more {
+    display: block;
+    font-size: $font-size-sm;
+  }
+}
+
+#thirty {
+  display: none;
+}

@@ -1,0 +1,29 @@
+// ============================================
+// Archives - 归档页样式
+// ============================================
+@use "../variables" as *;
+@use "../mixins" as *;
+
+#archives {
+  li {
+    margin: 5px 0;
+  }
+}
+
+// 错误页面
+.error-page {
+  height: 70vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  
+  h1 {
+    margin-bottom: 4px;
+    font-size: 2em;
+  }
+  
+  a {
+    padding-bottom: $spacing-xl;
+  }
+}
