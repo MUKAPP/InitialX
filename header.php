@@ -7,7 +7,11 @@
   <!-- 字符编码与视口设置 -->
   <meta charset="<?php $this->options->charset(); ?>" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, viewport-fit=cover">
+
+  <!-- Chrome 地址栏/状态栏颜色 -->
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#101010" media="(prefers-color-scheme: dark)" />
 
   <!-- Favicon 图标 -->
   <?php if ($this->options->favicon): ?>

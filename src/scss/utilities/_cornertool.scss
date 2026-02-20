@@ -6,7 +6,7 @@
 
 #cornertool {
   position: fixed;
-  bottom: $spacing-lg;
+  bottom: calc(#{$spacing-lg} + env(safe-area-inset-bottom, 0px));
   z-index: 999;
   right: 50%;
   margin-right: -580px;

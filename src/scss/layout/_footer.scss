@@ -6,7 +6,7 @@
 
 #footer {
   font-size: $font-size-sm;
-  padding: 2em 0;
+  padding: 2em 0 calc(2em + env(safe-area-inset-bottom, 0px));
   line-height: 1.5;
   text-align: center;
   border-top: 1px solid var(--border-color);
