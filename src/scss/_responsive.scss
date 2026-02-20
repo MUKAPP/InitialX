@@ -121,7 +121,7 @@
   }
   
   .on #nav {
-    max-height: 240px;
+    max-height: 100vh;
   }
   
   .head-fixed .on #nav {
@@ -129,7 +129,7 @@
   }
   
   .nav-menu {
-    max-height: 200px;
+    max-height: calc(100vh - 80px);
     overflow: auto;
     
     li,
