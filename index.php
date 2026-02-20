@@ -5,7 +5,7 @@
  *
  * @package InitialX
  * @author MUKAPP
- * @version 1.0.1
+ * @version 1.0.2
  * @link https://github.com/MUKAPP/InitialX
  */
 
