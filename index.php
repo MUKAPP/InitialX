@@ -19,7 +19,9 @@ if ($this->_currentPage == 1 && !empty($this->options->ShowWhisper) && in_array(
         <?php Whisper(); ?>
     </article>
 <?php endif; ?>
+<?php $listCustomCounter = 0; ?>
 <?php while ($this->next()): ?>
+<?php $listCustomCounter++; ?>
     <article
             class="post list-post<?php if ($this->options->PjaxOption && $this->hidden): ?> protected<?php endif; ?> heti">
         <a href="<?php $this->permalink() ?>" title="<?php $this->title() ?>">
@@ -49,6 +51,12 @@ if ($this->_currentPage == 1 && !empty($this->options->ShowWhisper) && in_array(
             </div>
         </a>
     </article>
+<?php // 文章列表自定义内容（如信息流广告）
+if ($this->options->ListCustom && $this->options->ListCustomInterval):
+    $listInterval = intval($this->options->ListCustomInterval);
+    if ($listInterval > 0 && $listCustomCounter % $listInterval === 0): ?>
+    <div class="list-custom"><?php $this->options->ListCustom(); ?></div>
+<?php endif; endif; ?>
 <?php endwhile; ?>
 <?php $this->pageNav('上一页', $this->options->AjaxLoad ? '查看更多' : '下一页', 0, '..', $this->options->AjaxLoad ? array('wrapClass' => $this->options->AjaxLoad == 'auto' ? 'page-navigator ajaxload auto' : 'page-navigator ajaxload') : ''); ?>
     </div>

@@ -327,6 +327,21 @@ function themeConfig($form): void
     $CustomContent = new Textarea('CustomContent', NULL, NULL, _t('页面末尾脚本'), _t('在 &lt;/body&gt; 之前输出，适合放置需要在页面最后加载的 JS 脚本（若开启全站 Pjax，目前支持 Google 和百度统计的回调）'));
     $form->addInput($CustomContent);
 
+    $PostBottomCustom = new Textarea('PostBottomCustom', NULL, NULL, _t('文章底部自定义内容'), _t('在文章底部、评论区之前输出，支持 HTML，适合放置广告代码等'));
+    $form->addInput($PostBottomCustom);
+
+    $SidebarCustom = new Textarea('SidebarCustom', NULL, NULL, _t('侧边栏自定义内容'), _t('在侧边栏中输出，支持 HTML，适合放置广告代码、推广信息等'));
+    $form->addInput($SidebarCustom);
+
+    $SidebarCustomPosition = new Text('SidebarCustomPosition', NULL, '0', _t('侧边栏自定义内容显示位置'), _t('填写数字指定在第几个侧边栏模块之后显示，0 表示末尾。侧边栏模块顺序：①轻语 ②热门文章 ③最新文章 ④最近回复 ⑤分类 ⑥标签 ⑦归档 ⑧链接 ⑨其它（仅计算实际显示的模块）'));
+    $form->addInput($SidebarCustomPosition);
+
+    $ListCustom = new Textarea('ListCustom', NULL, NULL, _t('文章列表自定义内容'), _t('在文章列表中每隔指定篇数插入一次，支持 HTML，适合放置信息流广告等。需配合下方"插入间隔"使用，留空则不插入'));
+    $form->addInput($ListCustom);
+
+    $ListCustomInterval = new Text('ListCustomInterval', NULL, '3', _t('文章列表自定义内容插入间隔'), _t('每隔多少篇文章插入一次自定义内容，默认为 3'));
+    $form->addInput($ListCustomInterval);
+
     // ===== 主题设置备份与恢复 =====
     $backupHtml = new Textarea(
         'themeBackup',
@@ -343,7 +358,7 @@ function themeConfig($form): void
 			</div>
 			<script>
 			(function(){
-				var optionNames = ["logoUrl","customTitle","titleForm","subTitle","favicon","CustomCSS","cjcdnAddress","AttUrlReplace","Navset","CategoryText","PageText","Breadcrumbs","WeChat","Alipay","LicenseInfo","HeadFixed","SidebarFixed","cjCDN","GravatarUrl","compressHtml","PjaxOption","AjaxLoad","Highlight","catalog","scrollTop","MusicSet","MusicUrl","MusicVol","InsideLinksIcon","IndexLinksSort","InsideLinksSort","ShowLinks","ShowWhisper","sidebarBlock","OneCOL","ICPbeian","CustomContent","HeaderCustom","FooterCustom"];
+				var optionNames = ["logoUrl","customTitle","titleForm","subTitle","favicon","CustomCSS","cjcdnAddress","AttUrlReplace","Navset","CategoryText","PageText","Breadcrumbs","WeChat","Alipay","LicenseInfo","HeadFixed","SidebarFixed","cjCDN","GravatarUrl","compressHtml","PjaxOption","AjaxLoad","Highlight","catalog","scrollTop","MusicSet","MusicUrl","MusicVol","InsideLinksIcon","IndexLinksSort","InsideLinksSort","ShowLinks","ShowWhisper","sidebarBlock","OneCOL","ICPbeian","CustomContent","PostBottomCustom","SidebarCustom","SidebarCustomPosition","ListCustom","ListCustomInterval","HeaderCustom","FooterCustom"];
 				
 				document.getElementById("backupBtn").onclick = function(){
 					var allOptions = {};

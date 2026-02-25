@@ -286,7 +286,7 @@ function loadMore() {
                 return false;
             },
             success: function (response) {
-                var $newPosts = $(response).find("#main .post");
+                var $newPosts = $(response).find("#main .post, #main .list-custom");
                 var nextPageUrl = $(response).find($nextLink).attr("href");
                 if ($newPosts.length) {
                     $(".ajaxload").before($newPosts);

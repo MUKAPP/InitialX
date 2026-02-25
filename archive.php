@@ -13,7 +13,9 @@ $this->need('header.php'); ?>
                 'author' => _t('作者 %s 发布的文章')
         ), '', ''); ?></div>
 <?php if ($this->have()): ?>
+    <?php $listCustomCounter = 0; ?>
     <?php while ($this->next()): ?>
+    <?php $listCustomCounter++; ?>
         <article
                 class="post list-post<?php if ($this->options->PjaxOption && $this->hidden): ?> protected<?php endif; ?> heti">
             <a href="<?php $this->permalink() ?>" title="<?php $this->title() ?>">
@@ -43,6 +45,12 @@ $this->need('header.php'); ?>
                 </div>
             </a>
         </article>
+    <?php // 文章列表自定义内容（如信息流广告）
+    if ($this->options->ListCustom && $this->options->ListCustomInterval):
+        $listInterval = intval($this->options->ListCustomInterval);
+        if ($listInterval > 0 && $listCustomCounter % $listInterval === 0): ?>
+        <div class="list-custom"><?php $this->options->ListCustom(); ?></div>
+    <?php endif; endif; ?>
     <?php endwhile; ?>
 <?php else: ?>
     <article class="post">

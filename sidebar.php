@@ -4,13 +4,25 @@
 <!-- 侧边栏容器 -->
 <div id="secondary" <?php if ($this->options->SidebarFixed): ?> sidebar-fixed<?php endif; ?>>
 
+    <?php
+    // 侧边栏自定义内容位置计数器
+    $sidebarWidgetCount = 0;
+    $sidebarCustomPos = intval($this->options->SidebarCustomPosition ?? 0);
+    $sidebarCustomInserted = false;
+    ?>
+
     <?php // ===== 最新轻语 ===== 
     ?>
     <?php if (!empty($this->options->ShowWhisper) && in_array('sidebar', $this->options->ShowWhisper)): ?>
         <section class="widget">
             <?php Whisper(1); ?>
         </section>
-    <?php endif; ?>
+    <?php
+        $sidebarWidgetCount++;
+        if ($this->options->SidebarCustom && $sidebarCustomPos > 0 && $sidebarWidgetCount === $sidebarCustomPos && !$sidebarCustomInserted):
+            $sidebarCustomInserted = true; ?>
+            <section class="widget widget-custom"><?php $this->options->SidebarCustom(); ?></section>
+    <?php endif; endif; ?>
 
     <?php // ===== 热门文章（按评论数排序） ===== 
     ?>
@@ -21,7 +33,12 @@
                 <?php Contents_Post_Initial($this->options->postsListSize, 'commentsNum'); ?>
             </ul>
         </section>
-    <?php endif; ?>
+    <?php
+        $sidebarWidgetCount++;
+        if ($this->options->SidebarCustom && $sidebarCustomPos > 0 && $sidebarWidgetCount === $sidebarCustomPos && !$sidebarCustomInserted):
+            $sidebarCustomInserted = true; ?>
+            <section class="widget widget-custom"><?php $this->options->SidebarCustom(); ?></section>
+    <?php endif; endif; ?>
 
     <?php // ===== 最新文章 ===== 
     ?>
@@ -32,7 +49,12 @@
                 <?php Contents_Post_Initial($this->options->postsListSize); ?>
             </ul>
         </section>
-    <?php endif; ?>
+    <?php
+        $sidebarWidgetCount++;
+        if ($this->options->SidebarCustom && $sidebarCustomPos > 0 && $sidebarWidgetCount === $sidebarCustomPos && !$sidebarCustomInserted):
+            $sidebarCustomInserted = true; ?>
+            <section class="widget widget-custom"><?php $this->options->SidebarCustom(); ?></section>
+    <?php endif; endif; ?>
 
     <?php // ===== 最近回复 ===== 
     ?>
@@ -62,7 +84,12 @@
                 <?php endif; ?>
             </ul>
         </section>
-    <?php endif; ?>
+    <?php
+        $sidebarWidgetCount++;
+        if ($this->options->SidebarCustom && $sidebarCustomPos > 0 && $sidebarWidgetCount === $sidebarCustomPos && !$sidebarCustomInserted):
+            $sidebarCustomInserted = true; ?>
+            <section class="widget widget-custom"><?php $this->options->SidebarCustom(); ?></section>
+    <?php endif; endif; ?>
 
     <?php // ===== 分类列表 ===== 
     ?>
@@ -74,7 +101,12 @@
                         ->parse('<li><a href="{permalink}">{name}</a></li>'); ?>
             </ul>
         </section>
-    <?php endif; ?>
+    <?php
+        $sidebarWidgetCount++;
+        if ($this->options->SidebarCustom && $sidebarCustomPos > 0 && $sidebarWidgetCount === $sidebarCustomPos && !$sidebarCustomInserted):
+            $sidebarCustomInserted = true; ?>
+            <section class="widget widget-custom"><?php $this->options->SidebarCustom(); ?></section>
+    <?php endif; endif; ?>
 
     <?php // ===== 标签云 ===== 
     ?>
@@ -92,7 +124,12 @@
                 <?php endif; ?>
             </ul>
         </section>
-    <?php endif; ?>
+    <?php
+        $sidebarWidgetCount++;
+        if ($this->options->SidebarCustom && $sidebarCustomPos > 0 && $sidebarWidgetCount === $sidebarCustomPos && !$sidebarCustomInserted):
+            $sidebarCustomInserted = true; ?>
+            <section class="widget widget-custom"><?php $this->options->SidebarCustom(); ?></section>
+    <?php endif; endif; ?>
 
     <?php // ===== 归档（按月份） ===== 
     ?>
@@ -104,7 +141,12 @@
                         ->parse('<li><a href="{permalink}">{date}</a></li>'); ?>
             </ul>
         </section>
-    <?php endif; ?>
+    <?php
+        $sidebarWidgetCount++;
+        if ($this->options->SidebarCustom && $sidebarCustomPos > 0 && $sidebarWidgetCount === $sidebarCustomPos && !$sidebarCustomInserted):
+            $sidebarCustomInserted = true; ?>
+            <section class="widget widget-custom"><?php $this->options->SidebarCustom(); ?></section>
+    <?php endif; endif; ?>
 
     <?php // ===== 友情链接 ===== 
     ?>
@@ -122,7 +164,12 @@
                 <?php endif; ?>
             </ul>
         </section>
-    <?php endif; ?>
+    <?php
+        $sidebarWidgetCount++;
+        if ($this->options->SidebarCustom && $sidebarCustomPos > 0 && $sidebarWidgetCount === $sidebarCustomPos && !$sidebarCustomInserted):
+            $sidebarCustomInserted = true; ?>
+            <section class="widget widget-custom"><?php $this->options->SidebarCustom(); ?></section>
+    <?php endif; endif; ?>
 
     <?php // ===== 其它杂项 ===== 
     ?>
@@ -141,6 +188,19 @@
                     </li>
                 <?php endif; ?>
             </ul>
+        </section>
+    <?php
+        $sidebarWidgetCount++;
+        if ($this->options->SidebarCustom && $sidebarCustomPos > 0 && $sidebarWidgetCount === $sidebarCustomPos && !$sidebarCustomInserted):
+            $sidebarCustomInserted = true; ?>
+            <section class="widget widget-custom"><?php $this->options->SidebarCustom(); ?></section>
+    <?php endif; endif; ?>
+
+    <?php // ===== 侧边栏自定义内容兜底：位置为0或超出实际widget数量时在末尾显示 =====
+    ?>
+    <?php if ($this->options->SidebarCustom && !$sidebarCustomInserted): ?>
+        <section class="widget widget-custom">
+            <?php $this->options->SidebarCustom(); ?>
         </section>
     <?php endif; ?>
 

@@ -18,3 +18,19 @@
 #thirty {
   display: none;
 }
+
+// 自定义内容区域（广告等）溢出控制
+.widget-custom,
+.list-custom,
+.post-bottom-custom {
+  overflow: hidden;
+  max-width: 100%;
+
+  img,
+  iframe,
+  ins,
+  video {
+    max-width: 100%;
+    height: auto;
+  }
+}

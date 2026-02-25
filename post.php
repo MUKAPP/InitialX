@@ -90,6 +90,11 @@ if (!empty($this->options->Breadcrumbs) && in_array('Postshow', $this->options->
         <?php endif; ?>
     </article>
 
+<?php // 文章底部自定义内容（如广告）
+if ($this->options->PostBottomCustom): ?>
+    <div class="post-bottom-custom"><?php $this->options->PostBottomCustom(); ?></div>
+<?php endif; ?>
+
 <?php // 加载评论模板 
 ?>
 <?php $this->need('comments.php'); ?>
