@@ -325,10 +325,70 @@ if (document.getElementsByClassName("ajaxload").length) {
     }
 }
 
-// 处理滚动事件
+// 处理滚动事件与返回顶部
+// 返回顶部动画状态：使用 rAF id 正确取消，避免动画结束后滚轮被“粘住”
+var scrollToTopRafId = 0;
+var isScrollingToTop = false;
+
+function getPageScrollTop() {
+    return window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+}
+
+function stopScrollToTop() {
+    if (scrollToTopRafId) {
+        cancelAnimationFrame(scrollToTopRafId);
+        scrollToTopRafId = 0;
+    }
+    isScrollingToTop = false;
+}
+
+function animateScrollToTop() {
+    var current = getPageScrollTop();
+    if (current <= 0) {
+        // 强制归零，清掉可能残留的亚像素/合成层滚动状态
+        window.scrollTo(0, 0);
+        stopScrollToTop();
+        return;
+    }
+
+    // 每帧按比例回退，并保证至少前进 1px，避免浮点停滞
+    var next = Math.floor(current * 0.8);
+    if (next >= current) {
+        next = current - 1;
+    }
+    window.scrollTo(0, Math.max(0, next));
+    scrollToTopRafId = requestAnimationFrame(animateScrollToTop);
+}
+
+function startScrollToTop() {
+    if (isScrollingToTop) {
+        return;
+    }
+    isScrollingToTop = true;
+    if (scrollToTopRafId) {
+        cancelAnimationFrame(scrollToTopRafId);
+    }
+    scrollToTopRafId = requestAnimationFrame(animateScrollToTop);
+}
+
+// 用户手动滚动时立即中断回顶动画，避免程序滚动与手势冲突
+window.addEventListener("wheel", stopScrollToTop, { passive: true });
+window.addEventListener("touchstart", stopScrollToTop, { passive: true });
+window.addEventListener("keydown", function (event) {
+    var keys = ["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " ", "Spacebar"];
+    if (keys.indexOf(event.key) !== -1) {
+        stopScrollToTop();
+    }
+});
+
+// 按钮点击只绑定一次，不要在 onscroll 里重复赋值
+var $topButton = document.getElementById("top");
+if ($topButton) {
+    $topButton.addEventListener("click", startScrollToTop);
+}
+
 window.onscroll = function () {
-    var scrollTop = document.body.scrollTop || document.documentElement.scrollTop;
-    var $topButton = document.getElementById("top");
+    var scrollTop = getPageScrollTop();
     var $secondary = document.getElementById("secondary");
     var isHeadFixed = document
         .getElementsByTagName("body")[0]
@@ -340,16 +400,6 @@ window.onscroll = function () {
         } else {
             $topButton.setAttribute("class", "hidden");
         }
-        $topButton.onclick = function scrollToTop() {
-            var scrollTop = document.body.scrollTop || document.documentElement.scrollTop;
-            if (scrollTop > 1) {
-                requestAnimationFrame(scrollToTop);
-                scrollTo(0, scrollTop - scrollTop / 5);
-            } else {
-                cancelAnimationFrame(scrollToTop);
-                scrollTo(0, 0);
-            }
-        };
     }
 
     if (isHeadFixed) {
