@@ -90,9 +90,14 @@ use Typecho\Widget;
 <?php endif;
 if ($this->options->Highlight): ?>
     <link rel="stylesheet"
-          href="https://<?php if ($this->options->cjCDN == 'cf'): ?>cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github-dark.min.css<?php elseif ($this->options->cjCDN == 'sc'): ?>cdn.staticfile.org/highlight.js/11.10.0/styles/github-dark.min.css<?php else: ?>cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github-dark.min.css<?php endif; ?>">
+          href="https://<?php if ($this->options->cjCDN == 'cf'): ?>cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css<?php elseif ($this->options->cjCDN == 'sc'): ?>cdn.staticfile.org/highlight.js/11.11.1/styles/github-dark.min.css<?php else: ?>cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/styles/github-dark.min.css<?php endif; ?>">
     <script
-            src="//<?php if ($this->options->cjCDN == 'cf'): ?>cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/highlight.min.js<?php elseif ($this->options->cjCDN == 'sc'): ?>cdn.staticfile.org/highlight.js/11.10.0/highlight.min.js<?php else: ?>cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js<?php endif; ?>"></script>
+            src="//<?php if ($this->options->cjCDN == 'cf'): ?>cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js<?php elseif ($this->options->cjCDN == 'sc'): ?>cdn.staticfile.org/highlight.js/11.11.1/highlight.min.js<?php else: ?>cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/highlight.min.js<?php endif; ?>"></script>
+<?php endif; ?>
+<?php if ($this->options->PjaxOption): ?>
+    <!-- Swup 无刷新导航 -->
+    <script src="<?php cjUrl('libs/swup/Swup.umd.js') ?>"></script>
+    <script src="<?php cjUrl('libs/swup/forms-plugin.umd.js') ?>"></script>
 <?php endif; ?>
     <script src="<?php cjUrl('dist/main.min.js') ?>"></script>
 
@@ -120,20 +125,22 @@ if ($this->options->Highlight): ?>
         // 代码块复制
         addCopyButtonsToCodeblocks();
 
-        // 监听 pjax/ajax 完成事件（仅在 jQuery 存在时）
-        if (typeof $ !== 'undefined') {
-            $(document).on('pjax:complete', function () {
+        // 页面替换后重新初始化
+        if (typeof Swup !== 'undefined') {
+            document.addEventListener('swup:page:view', function () {
                 <?php if ($this->options->HetiOption): ?>
                 heti.autoSpacing();
                 <?php endif; ?>
                 addCopyButtonsToCodeblocks();
             });
-            <?php if ($this->options->HetiOption): ?>
+        }
+        <?php if ($this->options->HetiOption): ?>
+        if (typeof $ !== 'undefined') {
             $(document).ajaxComplete(function () {
                 heti.autoSpacing();
             });
-            <?php endif; ?>
         }
+        <?php endif; ?>
     </script>
 
     </body>

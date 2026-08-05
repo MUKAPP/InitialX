@@ -1,5 +1,5 @@
-// 检查是否启用了PJAX
-if (document.getElementById("body").hasAttribute("in-pjax")) {
+// 检查是否启用了无刷新导航
+if (document.getElementById("body").hasAttribute("in-swup")) {
     // 定义jQuery shake动画效果
     jQuery.fn.shake = function (times, distance) {
         this.each(function () {
@@ -14,50 +14,51 @@ if (document.getElementById("body").hasAttribute("in-pjax")) {
         return this;
     };
 
-    // 设置PJAX
-    $(document)
-        .pjax('a:not(a[target="_blank"], a[no-pjax])', {
-            container: "#main",
-            fragment: "#main",
-            timeout: 10000,
-        })
-        // 处理表单提交
-        .on("submit", "form[id=search], form[id=comment-form]", function (event) {
-            $.pjax.submit(event, {
-                container: "#main",
-                fragment: "#main",
-                timeout: 10000,
-            });
-        })
-        // PJAX加载开始时显示加载条
-        .on("pjax:send", function () {
-            $("#header").prepend("<div id='loading-bar'></div>");
-        })
-        // PJAX加载完成后的处理
-        .on("pjax:complete", function () {
-            setTimeout(function () {
-                $("#loading-bar").remove();
-            }, 300);
-            $("#header").removeClass("on");
-            $("#search-input").val("");
-            $("#secondary").removeAttr("style");
-            initHighlight();
-        })
-        // PJAX加载结束后的处理
-        .on("pjax:end", function () {
-            if ($(".ajaxload").length) {
-                loadMoreContent();
-            }
-            initCatalog();
-            initCommentForm();
-            initProtectedContent();
-            if (typeof _hmt !== "undefined") {
-                _hmt.push(["_trackPageview", location.pathname + location.search]);
-            }
-            if (typeof ga !== "undefined") {
-                ga("send", "pageview", location.pathname + location.search);
-            }
-        });
+    // 设置 Swup 无刷新导航
+    var swup = new Swup({
+        containers: ["#main"],
+        timeout: 10000,
+        ignoreVisit: function (url, context) {
+            return Boolean(context && context.el && context.el.closest("[no-pjax]"));
+        },
+        plugins: [
+            new SwupFormsPlugin({
+                formSelector: "form#search",
+            }),
+        ],
+    });
+
+    // 显示页面加载状态
+    swup.hooks.on("visit:start", function () {
+        $("#header").prepend("<div id='loading-bar'></div>");
+    });
+
+    // 页面内容替换后清理持久区域状态
+    swup.hooks.on("content:replace", function () {
+        setTimeout(function () {
+            $("#loading-bar").remove();
+        }, 300);
+        $("#header").removeClass("on");
+        $("#search-input").val("");
+        $("#secondary").removeAttr("style");
+        initHighlight();
+    });
+
+    // 新页面可见后重新绑定页面内交互
+    swup.hooks.on("page:view", function () {
+        if ($(".ajaxload").length) {
+            loadMoreContent();
+        }
+        initCatalog();
+        initCommentForm();
+        initProtectedContent();
+        if (typeof _hmt !== "undefined") {
+            _hmt.push(["_trackPageview", location.pathname + location.search]);
+        }
+        if (typeof ga !== "undefined") {
+            ga("send", "pageview", location.pathname + location.search);
+        }
+    });
 
     // 初始化评论表单
     function initCommentForm() {
@@ -234,20 +235,18 @@ if (document.getElementById("body").hasAttribute("in-pjax")) {
                 } else {
                     resetLoadingState();
                     $word
-                        .text("密码正确，如果没有跳转新页面，请手动刷新本页。")
+                        .text("密码正确，正在刷新页面...")
                         .css("color", "blue");
-                    $("h1.post-title").length
-                        ? $.pjax.reload({
-                            container: "#main",
-                            fragment: "#main",
-                            timeout: 10000,
-                        })
-                        : $.pjax({
-                            url: postUrl,
-                            container: "#main",
-                            fragment: "#main",
-                            timeout: 10000,
+                    if ($("h1.post-title").length) {
+                        swup.navigate(window.location.href, {
+                            history: "replace",
+                            cache: { read: false, write: true },
                         });
+                    } else {
+                        swup.navigate(postUrl, {
+                            cache: { read: false, write: true },
+                        });
+                    }
                 }
             },
         });

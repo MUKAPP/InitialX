@@ -43,14 +43,10 @@
   <!-- 主样式表 -->
   <link rel="stylesheet" href="<?php cjUrl('dist/style.min.css') ?>" />
 
-  <!-- ===== jQuery 和 Pjax（按需加载） ===== -->
+  <!-- ===== jQuery（按需加载） ===== -->
   <?php if ($this->options->PjaxOption || $this->options->AjaxLoad): ?>
     <script
-      src="//<?php if ($this->options->cjCDN == 'cf'): ?>cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js<?php elseif ($this->options->cjCDN == 'sc'): ?>cdn.staticfile.org/jquery/2.1.4/jquery.min.js<?php else: ?>cdn.jsdelivr.net/npm/jquery@2.1.4/dist/jquery.min.js<?php endif; ?>"></script>
-  <?php endif;
-  if ($this->options->PjaxOption): ?>
-    <script
-      src="//<?php if ($this->options->cjCDN == 'cf'): ?>cdnjs.cloudflare.com/ajax/libs/jquery.pjax/2.0.1/jquery.pjax.min.js<?php elseif ($this->options->cjCDN == 'sc'): ?>cdn.staticfile.org/jquery.pjax/2.0.1/jquery.pjax.min.js<?php else: ?>cdn.jsdelivr.net/npm/jquery-pjax@2.0.1/jquery.pjax.min.js<?php endif; ?>"></script>
+      src="//<?php if ($this->options->cjCDN == 'cf'): ?>cdnjs.cloudflare.com/ajax/libs/jquery/4.0.0/jquery.min.js<?php elseif ($this->options->cjCDN == 'sc'): ?>cdn.staticfile.org/jquery/4.0.0/jquery.min.js<?php else: ?>cdn.jsdelivr.net/npm/jquery@4.0.0/dist/jquery.min.js<?php endif; ?>"></script>
   <?php endif; ?>
 
   <!-- 自定义 CSS 样式 -->
@@ -204,6 +200,6 @@
   </header>
 
   <!-- ===== 页面主体内容区域 ===== -->
-  <div id="body" <?php if ($this->options->PjaxOption): ?> in-pjax<?php endif; ?>>
+  <div id="body" <?php if ($this->options->PjaxOption): ?> in-swup<?php endif; ?>>
     <div class="container clearfix">
       <div id="main">
