@@ -9,7 +9,6 @@ use Typecho\Widget\Helper\Form\Element\Radio;
 use Typecho\Widget\Helper\Form\Element\Text;
 use Typecho\Widget\Helper\Form\Element\Textarea;
 use Utils\Helper;
-use Utils\Markdown;
 use Widget\Base\Comments;
 
 // InitialX 主题版本号
@@ -698,17 +697,17 @@ function Whisper($sidebar = NULL): void
     }
     if ($page) {
         $page = $page[0];
-        $title = $sidebar ? '<h3 class="widget-title">' . $page['title'] . '</h3>' : '<h2 class="post-title"><a href="' . $page['permalink'] . '">' . $page['title'] . '<span class="more">···</span></a></h2>';
+        $title = $sidebar ? '<h3 class="widget-title">' . htmlspecialchars($page['title']) . '</h3>' : '<h2 class="post-title"><a href="' . htmlspecialchars($page['permalink']) . '">' . htmlspecialchars($page['title']) . '<span class="more">···</span></a></h2>';
         $comment = $db->fetchAll($db->select()->from('table.comments')
             ->where('cid = ? AND status = ? AND parent = ?', $page['cid'], 'approved', '0')
             ->order('coid', Db::SORT_DESC)
             ->limit(1));
         if ($comment) {
-            $content = hrefOpen(Markdown::convert($comment[0]['text']));
-            if ($options->AttUrlReplace) {
-                $content = UrlReplace($content);
-            }
-            $content = strip_tags($content, '<p><br><strong><a><img><pre><code>' . $options->commentsHTMLTagAllowed) . ($sidebar ? PHP_EOL . '<li class="more"><a href="' . $page['permalink'] . '">查看更多...</a></li>' : '');
+            // 评论内容以纯文本输出：评论 text 原样入库，若经 Markdown 转换后再用原生
+            // strip_tags 白名单渲染，事件属性（onerror/onclick 等）与 javascript: 链接
+            // 会原样保留，构成存储型 XSS。这里只保留纯文本与换行。
+            $content = '<' . $p . '>' . nl2br(htmlspecialchars($comment[0]['text'])) . '</' . $p . '>' .
+                ($sidebar ? PHP_EOL . '<li class="more"><a href="' . htmlspecialchars($page['permalink']) . '">查看更多...</a></li>' : '');
         } else {
             $content = '<' . $p . '>暂无内容</' . $p . '>';
         }
@@ -721,6 +720,13 @@ function Whisper($sidebar = NULL): void
 
 function Links($sorts = NULL, $icon = 0)
 {
+    // 同一请求内（侧边栏/页脚多处调用）只查询并渲染一次
+    static $cache = array();
+    $key = ($sorts === NULL ? '' : $sorts) . '|' . $icon;
+    if (array_key_exists($key, $cache)) {
+        echo $cache[$key];
+        return;
+    }
     $db = Db::get();
     $link = NULL;
     $list = NULL;

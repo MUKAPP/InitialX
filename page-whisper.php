@@ -2,8 +2,6 @@
     exit;
 
 use Typecho\Widget;
-use Utils\Helper;
-use Utils\Markdown;
 
 $this->need('header.php');
 $this->options->commentsThreaded = true;
@@ -50,7 +48,8 @@ Breadcrumbs($this); ?>
                     <?php } ?>
                 </div>
                 <div class="comment-content">
-                    <?php echo strip_tags(hrefOpen(Markdown::convert($comments->text)), '<p><br><strong><a><img><pre><code>' . Helper::options()->commentsHTMLTagAllowed); ?>
+                    <?php // 评论 text 原样入库，原生 strip_tags 白名单会保留事件属性（存储型 XSS），统一纯文本输出
+                    echo nl2br(htmlspecialchars($comments->text)); ?>
                 </div>
                 <div class="comment-meta">
                     <time><?php $comments->dateWord(); ?></time>
@@ -73,7 +72,7 @@ Breadcrumbs($this); ?>
                     ?>><?php if ($comments->levels > 1) {
                             CommentAt($comments->coid);
                         }
-                        echo strip_tags(str_replace(PHP_EOL, "<br>", $comments->text), "<br>"); ?></span>
+                        echo nl2br(htmlspecialchars($comments->text)); ?></span>
                     <?php if ($comments->status == 'waiting') { ?>
                         <em>您的评论正等待审核！</em>
                     <?php } ?>
