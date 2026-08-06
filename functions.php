@@ -663,7 +663,7 @@ function initialx_sanitize_html($html): string
         'h1' => array(), 'h2' => array(), 'h3' => array(), 'h4' => array(), 'h5' => array(), 'h6' => array(),
         'hr' => array(),
         'pre' => array('class'), 'code' => array('class'),
-        'a' => array('href', 'title', 'rel', 'target'),
+        'a' => array('href', 'title', 'target'),
         'img' => array('src', 'alt', 'title'),
         'table' => array(), 'thead' => array(), 'tbody' => array(), 'tr' => array(), 'td' => array(), 'th' => array(),
     );
@@ -698,6 +698,10 @@ function initialx_sanitize_html($html): string
                 } elseif (($name === 'href' || $name === 'src') && !initialx_safe_url($attr->nodeValue)) {
                     $node->removeAttributeNode($attr);
                 }
+            }
+            // 新窗口链接强制 noopener noreferrer（评论不再经过 hrefOpen，防 tabnabbing）
+            if ($tag === 'a' && $node->hasAttribute('target')) {
+                $node->setAttribute('rel', 'noopener noreferrer');
             }
         }
     }
