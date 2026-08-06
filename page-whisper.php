@@ -121,6 +121,12 @@ Breadcrumbs($this); ?>
                         <?php endif; ?>
                         <button type="submit" class="submit">提交</button>
                     </p>
+                    <?php // 与 comments.php 一致：渲染评论验证码（若安装了 Geetest4Comment 插件）
+                    if (class_exists('\TypechoPlugin\Geetest4Comment\Plugin')): ?>
+                        <?php \TypechoPlugin\Geetest4Comment\Plugin::commentCaptchaRender(); ?>
+                    <?php elseif (class_exists('Geetest4Comment_Plugin')): ?>
+                        <?php Geetest4Comment_Plugin::commentCaptchaRender(); ?>
+                    <?php endif; ?>
                 </form>
             </div>
             <script>(function () {

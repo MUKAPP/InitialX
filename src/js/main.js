@@ -259,7 +259,23 @@ if (document.getElementById("body").hasAttribute("in-swup")) {
                 success: function (response) {
                     $("#comments").find("button[type='submit']").text("提交评论");
                     if (!$(commentListSelector, response).length) {
-                        alert("您输入的内容不符合规则或者回复太频繁，请修改内容或者稍等片刻。");
+                        // 响应中无评论列表：优先展示服务端返回的错误（如验证码校验失败），
+                        // 而非笼统的兜底文案
+                        var serverError = "";
+                        try {
+                            serverError = $("<div>")
+                                .append($(response))
+                                .find("h1")
+                                .first()
+                                .text()
+                                .trim();
+                        } catch (e) {
+                            serverError = "";
+                        }
+                        alert(
+                            serverError ||
+                                "您输入的内容不符合规则或者回复太频繁，请修改内容或者稍等片刻。",
+                        );
                         return false;
                     } else {
                         // 从响应中按 DOM id 提取最新评论 id，替代脆弱的正则匹配
