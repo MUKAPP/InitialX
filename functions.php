@@ -251,7 +251,7 @@ function themeConfig($form): void
     );
     $form->addInput($MusicSet);
 
-    $MusicUrl = new Textarea('MusicUrl', NULL, NULL, _t('背景音乐地址（建议使用mp3格式）'), _t('请输入完整的音频文件路径，例如：<br>https://music.163.com/song/media/outer/url?id=<b class="notice">{MusicID}</b>.mp3<br>可设置多个音频，换行即可，一行一个，留空则关闭背景音乐'));
+    $MusicUrl = new Textarea('MusicUrl', NULL, NULL, _t('背景音乐地址（音乐直链，建议使用mp3格式）'), _t('请输入完整的音频文件直链地址，例如：<br>https://example.com/music/song.mp3<br>可设置多个音频，换行即可，一行一个，留空则关闭背景音乐'));
     $form->addInput($MusicUrl);
 
     $MusicVol = new Text('MusicVol', NULL, NULL, _t('背景音乐播放音量（输入范围：0~1）'), _t('请输入一个0到1之间的小数（0为静音  0.5为50%音量  1为100%最大音量）输入错误内容或留空则使用默认音量100%'));
