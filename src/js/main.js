@@ -471,13 +471,15 @@ function restoreAjaxExtras() {
 
 function loadMoreContent() {
     $('.ajaxload li[class!="next"]').remove();
-    $(".ajaxload .next a").click(function () {
-        if (isLoading) {
-            isLoading = false;
-            loadMore();
-        }
-        return false;
-    });
+    $(".ajaxload .next a")
+        .off("click.initialxAjaxLoad")
+        .on("click.initialxAjaxLoad", function () {
+            if (isLoading) {
+                isLoading = false;
+                loadMore();
+            }
+            return false;
+        });
 }
 
 function loadMore() {
