@@ -35,6 +35,11 @@ if (document.getElementById("body").hasAttribute("in-swup")) {
 
     // 显示页面加载状态
     swup.hooks.on("visit:start", function () {
+        // 中止在途的加载更多请求，避免过期响应写入新页面
+        if (pendingLoadMore) {
+            pendingLoadMore.abort();
+            pendingLoadMore = null;
+        }
         // 离开带扩展文章的列表页前记录滚动位置，供返回时恢复
         if (ajaxExtrasState && ajaxExtrasState.url === window.location.href) {
             ajaxExtrasState.scrollY = getPageScrollTop();
@@ -432,6 +437,8 @@ var isLoading = true;
 
 // 已通过 Ajax 加载的文章状态：Pjax 返回列表页时恢复，避免重新加载
 var ajaxExtrasState = null;
+// 在途的加载更多请求：导航离开时中止，防止过期响应写入新页面
+var pendingLoadMore = null;
 
 function recordAjaxExtras($newPosts, nextPageUrl) {
     if (!ajaxExtrasState || ajaxExtrasState.url !== window.location.href) {
@@ -485,17 +492,33 @@ function loadMoreContent() {
 function loadMore() {
     var $nextLink = ".ajaxload .next a";
     var nextUrl = $($nextLink).attr("href");
+    var originUrl = window.location.href;
     $($nextLink).addClass("loading").text("正在加载");
     if (nextUrl) {
-        $.ajax({
+        pendingLoadMore = $.ajax({
             url: nextUrl,
-            error: function () {
+            error: function (jqXHR, textStatus) {
+                // 主动中止的请求静默处理
+                if (textStatus === "abort") {
+                    isLoading = true;
+                    return;
+                }
+                // 请求期间已导航到其他页面，丢弃过期响应
+                if (window.location.href !== originUrl) {
+                    isLoading = true;
+                    return;
+                }
                 alert("请求失败，请检查网络并重试或者联系管理员");
                 $($nextLink).removeAttr("class").text("查看更多");
                 isLoading = true;
                 return false;
             },
             success: function (response) {
+                // 请求期间已导航到其他页面，丢弃过期响应
+                if (window.location.href !== originUrl) {
+                    isLoading = true;
+                    return;
+                }
                 var $newPosts = $(response).find("#main .post, #main .list-custom");
                 var nextPageUrl = $(response).find($nextLink).attr("href");
                 if ($newPosts.length) {
