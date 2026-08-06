@@ -19,7 +19,12 @@ if (document.getElementById("body").hasAttribute("in-swup")) {
         containers: ["#main"],
         timeout: 10000,
         ignoreVisit: function (url, context) {
-            return Boolean(context && context.el && context.el.closest("[no-pjax]"));
+            return Boolean(
+                context &&
+                    context.el &&
+                    (context.el.closest("[no-pjax]") ||
+                        context.el.closest(".comment-reply a, .whisper-reply, #cancel-comment-reply-link")),
+            );
         },
         plugins: [
             new SwupFormsPlugin({
