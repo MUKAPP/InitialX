@@ -90,9 +90,9 @@ use Typecho\Widget;
 <?php endif;
 if ($this->options->Highlight): ?>
     <link rel="stylesheet"
-          href="https://<?php if ($this->options->cjCDN == 'cf'): ?>cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css<?php elseif ($this->options->cjCDN == 'sc'): ?>cdn.staticfile.org/highlight.js/11.11.1/styles/github-dark.min.css<?php else: ?>cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/styles/github-dark.min.css<?php endif; ?>">
+          href="https://<?php if ($this->options->cjCDN == 'cf'): ?>cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css<?php elseif ($this->options->cjCDN == 'sc'): ?>cdn.staticfile.net/highlight.js/11.11.1/styles/github-dark.min.css<?php else: ?>cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/styles/github-dark.min.css<?php endif; ?>">
     <script
-            src="//<?php if ($this->options->cjCDN == 'cf'): ?>cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js<?php elseif ($this->options->cjCDN == 'sc'): ?>cdn.staticfile.org/highlight.js/11.11.1/highlight.min.js<?php else: ?>cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/highlight.min.js<?php endif; ?>"></script>
+            src="//<?php if ($this->options->cjCDN == 'cf'): ?>cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js<?php elseif ($this->options->cjCDN == 'sc'): ?>cdn.staticfile.net/highlight.js/11.11.1/highlight.min.js<?php else: ?>cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/highlight.min.js<?php endif; ?>"></script>
 <?php endif; ?>
 <?php if ($this->options->PjaxOption): ?>
     <!-- Swup 无刷新导航 -->

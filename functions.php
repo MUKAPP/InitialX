@@ -140,12 +140,11 @@ function themeConfig($form): void
     $GravatarUrl = new Radio(
         'GravatarUrl',
         array(
-            false => _t('官方源'),
-            'https://cn.gravatar.com/avatar/' => _t('国内源'),
+            false => _t('官方源（国际）'),
             'https://cravatar.cn/avatar/' => _t('Cravatar源'),
             'https://gravatar.loli.net/avatar/' => _t('loli源'),
             'https://sdn.geekzu.org/avatar/' => _t('极客族源'),
-            'https://dn-qiniu-avatar.qbox.me/avatar/' => _t('七牛源')
+            'https://weavatar.com/avatar/' => _t('WeAvatar源')
         ),
         false,
         _t('Gravatar头像源'),

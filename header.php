@@ -46,7 +46,7 @@
   <!-- ===== jQuery（按需加载） ===== -->
   <?php if ($this->options->PjaxOption || $this->options->AjaxLoad): ?>
     <script
-      src="//<?php if ($this->options->cjCDN == 'cf'): ?>cdnjs.cloudflare.com/ajax/libs/jquery/4.0.0/jquery.min.js<?php elseif ($this->options->cjCDN == 'sc'): ?>cdn.staticfile.org/jquery/4.0.0/jquery.min.js<?php else: ?>cdn.jsdelivr.net/npm/jquery@4.0.0/dist/jquery.min.js<?php endif; ?>"></script>
+      src="//<?php if ($this->options->cjCDN == 'cf'): ?>cdnjs.cloudflare.com/ajax/libs/jquery/4.0.0/jquery.min.js<?php elseif ($this->options->cjCDN == 'sc'): ?>cdn.staticfile.net/jquery/4.0.0/jquery.min.js<?php else: ?>cdn.jsdelivr.net/npm/jquery@4.0.0/dist/jquery.min.js<?php endif; ?>"></script>
   <?php endif; ?>
 
   <!-- 自定义 CSS 样式 -->
