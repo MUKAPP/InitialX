@@ -500,18 +500,29 @@ function Postviews($archive): void
 {
     $db = Db::get();
     $cid = $archive->cid;
-    if (!array_key_exists('views', $db->fetchRow($db->select()->from('table.contents')))) {
-        $db->query('ALTER TABLE `' . $db->getPrefix() . 'contents` ADD `views` INT(10) DEFAULT 0;');
+    $viewsRow = null;
+    try {
+        $viewsRow = $db->fetchRow($db->select('views')->from('table.contents')->where('cid = ?', $cid));
+    } catch (\Throwable $e) {
+        // views 列不存在（首次运行或从旧版本升级）：补建列后重查。
+        // 用异常而非全表 SELECT * 判断列存在，避免每次请求全表扫描；并发首访
+        // 同时 ALTER 时列已存在会再次抛错，忽略即可。
+        try {
+            $db->query('ALTER TABLE `' . $db->getPrefix() . 'contents` ADD `views` INT(10) DEFAULT 0;');
+            $viewsRow = $db->fetchRow($db->select('views')->from('table.contents')->where('cid = ?', $cid));
+        } catch (\Throwable $ignore) {
+            $viewsRow = null;
+        }
     }
-    $exist = $db->fetchRow($db->select('views')->from('table.contents')->where('cid = ?', $cid))['views'];
+    $exist = (int)($viewsRow['views'] ?? 0);
     if ($archive->is('single')) {
         $cookie = Cookie::get('contents_views');
         $cookie = $cookie ? explode(',', $cookie) : array();
         if (!in_array($cid, $cookie)) {
             $db->query($db->update('table.contents')
-                ->rows(array('views' => (int)$exist + 1))
+                ->rows(array('views' => $exist + 1))
                 ->where('cid = ?', $cid));
-            $exist = (int)$exist + 1;
+            $exist = $exist + 1;
             array_push($cookie, $cid);
             $cookie = implode(',', $cookie);
             Cookie::set('contents_views', $cookie);
