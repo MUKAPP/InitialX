@@ -670,10 +670,16 @@ function Contents_Post_Initial($limit = 10, $order = 'created'): void
         ->order($order, Db::SORT_DESC)
         ->limit($limit));
     if ($posts) {
+        // 补齐路由派生字段（year/month/day/category），兼容日期、分类等自定义链接风格
+        $categorySlugs = initialx_category_slug_map($db, array_column($posts, 'cid'));
         foreach ($posts as $post) {
+            $post['year'] = date('Y', $post['created']);
+            $post['month'] = date('m', $post['created']);
+            $post['day'] = date('d', $post['created']);
+            $post['category'] = $categorySlugs[$post['cid']] ?? '';
             // Typecho 1.3.0 兼容：手动生成 permalink
             $permalink = \Typecho\Common::url(\Typecho\Router::url('post', $post), $options->index);
-            echo '<li><a href="' . $permalink . '">' . htmlspecialchars($post['title']) . '</a></li>' . PHP_EOL;
+            echo '<li><a href="' . htmlspecialchars($permalink) . '">' . htmlspecialchars($post['title']) . '</a></li>' . PHP_EOL;
         }
     } else {
         echo '<li>暂无文章</li>' . PHP_EOL;
@@ -723,8 +729,53 @@ function FindContent($cid): ?array
     return $row;
 }
 
-function FindContents($val = NULL, $order = 'order', $sort = 'a', $publish = NULL): ?array
+// 查询指定 cid 集合的第一分类 slug 映射（用于路由派生字段，一次查询避免 N+1）
+function initialx_category_slug_map($db, array $cids): array
 {
+    $map = array();
+    if (empty($cids)) {
+        return $map;
+    }
+    $rows = $db->fetchAll($db->select('table.relationships.cid', 'table.metas.slug')
+        ->from('table.relationships')
+        ->join('table.metas', 'table.metas.mid = table.relationships.mid', Db::INNER_JOIN)
+        ->where('table.metas.type = ?', 'category')
+        ->where('table.relationships.cid IN ?', $cids)
+        ->order('table.relationships.order', Db::SORT_ASC));
+    foreach ($rows as $row) {
+        if (!isset($map[$row['cid']])) {
+            $map[$row['cid']] = $row['slug'];
+        }
+    }
+    return $map;
+}
+
+// 为数据库原始行补齐路由派生字段并生成 permalink（兼容日期、分类等自定义链接风格）
+function initialx_permalinkize(array $rows): array
+{
+    $db = Db::get();
+    $options = Helper::options();
+    $categorySlugs = initialx_category_slug_map($db, array_column($rows, 'cid'));
+    foreach ($rows as &$row) {
+        $routeType = ($row['type'] === 'page') ? 'page' : 'post';
+        $row['year'] = date('Y', $row['created']);
+        $row['month'] = date('m', $row['created']);
+        $row['day'] = date('d', $row['created']);
+        $row['category'] = $categorySlugs[$row['cid']] ?? '';
+        $row['permalink'] = \Typecho\Common::url(\Typecho\Router::url($routeType, $row), $options->index);
+    }
+    unset($row);
+    return $rows;
+}
+
+function FindContents($val = NULL, $order = 'order', $sort = 'a', $publish = NULL, $type = NULL): ?array
+{
+    // 同一请求内相同参数的查询结果复用（sidebar/footer 多次调用同一查询）
+    static $cache = array();
+    $key = md5(serialize(array($val, $order, $sort, $publish, $type)));
+    if (array_key_exists($key, $cache)) {
+        return $cache[$key];
+    }
     $db = Db::get();
     $options = Helper::options();
     $sort = ($sort == 'a') ? Db::SORT_ASC : Db::SORT_DESC;
@@ -737,16 +788,16 @@ function FindContents($val = NULL, $order = 'order', $sort = 'a', $publish = NUL
     if ($publish) {
         $select->where('status = ?', 'publish');
     }
+    if ($type) {
+        $select->where('type = ?', $type);
+    }
     $contents = $db->fetchAll($select);
     if (!empty($contents)) {
-        // Typecho 1.3.0 兼容：手动生成 permalink
-        foreach ($contents as &$content) {
-            $routeType = ($content['type'] === 'page') ? 'page' : 'post';
-            $content['permalink'] = \Typecho\Common::url(\Typecho\Router::url($routeType, $content), $options->index);
-        }
-        unset($content);
+        $contents = initialx_permalinkize($contents);
     }
-    return empty($contents) ? NULL : $contents;
+    $result = empty($contents) ? NULL : $contents;
+    $cache[$key] = $result;
+    return $result;
 }
 
 function Whisper($sidebar = NULL): void
