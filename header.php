@@ -38,7 +38,7 @@
     <meta name="description" content="<?php $this->options->description(); ?>" />
   <?php endif; ?>
   <!-- Typecho 头部输出（禁用默认的生成器、评论回复等） -->
-  <?php $this->header('description=&generator=&template=&pingback=&xmlrpc=&wlw=&commentReply=&rss1=&rss2=&antiSpam=&atom='); ?>
+  <?php $this->header('description=&generator=&template=&pingback=&xmlrpc=&wlw=&commentReply=&rss1=&rss2=&atom='); ?>
 
   <!-- 主样式表 -->
   <link rel="stylesheet" href="<?php cjUrl('dist/style.min.css') ?>" />

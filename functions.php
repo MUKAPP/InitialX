@@ -424,7 +424,11 @@ function themeConfig($form): void
 function themeInit($archive)
 {
     $options = Helper::options();
-    $options->commentsAntiSpam = false;
+    // 仅 Pjax 无刷新导航模式下关闭评论反垃圾校验（其表单由 AJAX 提交，token 注入
+    // 无法随新页面生效）；其余模式保留核心 CSRF 校验
+    if ($options->PjaxOption) {
+        $options->commentsAntiSpam = false;
+    }
     if ($options->PjaxOption || FindContents('page-whisper.php', 'commentsNum', 'd')) {
         $options->commentsOrder = 'DESC';
         $options->commentsPageDisplay = 'first';
