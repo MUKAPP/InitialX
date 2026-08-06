@@ -88,6 +88,8 @@ Breadcrumbs($this); ?>
 <?php } ?>
     <div id="comments" class="whisper<?php if ($this->user->pass('editor', true)): ?> permission<?php endif; ?>">
         <?php $this->comments()->to($comments); ?>
+        <?php // 一次查询预取所有父评论作者，避免逐条评论查询（N+1）
+        initialx_prefetch_comment_at($this->cid); ?>
         <?php if ($comments->have()): ?>
             <?php $comments->listComments(); ?>
             <?php $comments->pageNav('上一页', '下一页', 0, '..'); ?>

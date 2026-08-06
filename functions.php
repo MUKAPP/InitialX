@@ -594,16 +594,59 @@ function CommentAuthor($obj, $autoLink = NULL, $noFollow = NULL)
     }
 }
 
+// 预取评论回复关系：按内容页 cid 一次查询该页全部已审核评论，
+// 构建 coid → 父评论作者 映射，消除 CommentAt 的 N+1 查询。
+// 不依赖评论 widget 的内部结构（threaded 模式下 stack 仅含顶层评论）。
+function initialx_prefetch_comment_at($cid): void
+{
+    $cid = intval($cid);
+    if ($cid <= 0) {
+        return;
+    }
+    $db = Db::get();
+    $rows = $db->fetchAll($db->select('coid', 'parent', 'author')->from('table.comments')
+        ->where('cid = ?', $cid)
+        ->where('status = ?', 'approved'));
+    $authorById = array();
+    $parents = array();
+    foreach ($rows as $r) {
+        $authorById[$r['coid']] = $r['author'];
+        if (($r['parent'] ?? 0) != 0) {
+            $parents[$r['coid']] = $r['parent'];
+        }
+    }
+    $map = array();
+    foreach ($parents as $coid => $parent) {
+        if (isset($authorById[$parent])) {
+            $map[$coid] = $authorById[$parent];
+        }
+    }
+    $GLOBALS['initialx_comment_at_map'] = $map;
+    $GLOBALS['initialx_comment_at_map_ready'] = true;
+}
+
 function CommentAt($coid): void
 {
-    $db = Db::get();
-    $prow = $db->fetchRow($db->select('parent')->from('table.comments')
-        ->where('coid = ? AND status = ?', $coid, 'approved'));
-    $parent = $prow['parent'];
-    if ($prow && $parent != '0') {
-        $arow = $db->fetchRow($db->select('author')->from('table.comments')
-            ->where('coid = ? AND status = ?', $parent, 'approved'));
-        echo '<b class="comment-at">@' . $arow['author'] . '</b>';
+    // 已由模板预取时直接查映射
+    if (!empty($GLOBALS['initialx_comment_at_map_ready'])) {
+        $map = $GLOBALS['initialx_comment_at_map'];
+        if (isset($map[$coid]) && $map[$coid] !== '') {
+            echo '<b class="comment-at">@' . htmlspecialchars($map[$coid]) . '</b>';
+        }
+        return;
+    }
+    // 未预取时按需查询：单条 JOIN 一次取得父评论作者（原实现为两条查询）
+    static $cache = array();
+    if (!array_key_exists($coid, $cache)) {
+        $db = Db::get();
+        $row = $db->fetchRow('SELECT c2.author FROM ' . $db->getPrefix() . 'comments c1 '
+            . 'INNER JOIN ' . $db->getPrefix() . 'comments c2 ON c2.coid = c1.parent '
+            . 'WHERE c1.coid = ' . intval($coid) . ' AND c1.parent <> 0 '
+            . 'AND c1.status = \'approved\' AND c2.status = \'approved\' LIMIT 1');
+        $cache[$coid] = $row['author'] ?? '';
+    }
+    if ($cache[$coid] !== '') {
+        echo '<b class="comment-at">@' . htmlspecialchars($cache[$coid]) . '</b>';
     }
 }
 
