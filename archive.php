@@ -58,7 +58,7 @@ $this->need('header.php'); ?>
         <h2 class="post-title">没有找到内容</h2>
     </article>
 <?php endif; ?>
-<?php $this->pageNav('上一页', $this->options->AjaxLoad ? '查看更多' : '下一页', 0, '..', $this->options->AjaxLoad ? array('wrapClass' => 'page-navigator ajaxload') : ''); ?>
+<?php $this->pageNav('上一页', $this->options->AjaxLoad ? '查看更多' : '下一页', 0, '..', $this->options->AjaxLoad ? array('wrapClass' => $this->options->AjaxLoad == 'auto' ? 'page-navigator ajaxload auto' : 'page-navigator ajaxload') : ''); ?>
     </div>
 <?php if (!$this->options->OneCOL):
     $this->need('sidebar.php');
