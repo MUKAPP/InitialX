@@ -560,33 +560,33 @@ function addCopyButtonsToCodeblocks() {
     const codeblocks = document.querySelectorAll('pre:not(:has(.mermaid)):not(:has([class*="mermaid"]))');
 
     codeblocks.forEach((codeblock) => {
-        // 跳过已经包含 Mermaid 内容的代码块
-        if (codeblock.querySelector('.mermaid, [class*="mermaid"], svg')) {
+        // 跳过已经包含 Mermaid 内容或已初始化的代码块
+        if (codeblock.querySelector('.mermaid, [class*="mermaid"], svg') || codeblock.dataset.copyButtonInitialized) {
             return;
         }
-        // 显示 复制代码 按钮
-        codeblock.style.position = "relative";
-        const copyButton = document.createElement("div");
+
+        const code = codeblock.querySelector("code");
+        if (!code) {
+            return;
+        }
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "code-block";
+        codeblock.before(wrapper);
+        wrapper.appendChild(codeblock);
+
+        const copyButton = document.createElement("button");
+        copyButton.type = "button";
         copyButton.className = "copy-button";
         copyButton.textContent = "复制";
-        copyButton.style.visibility = "hidden";
-        codeblock.appendChild(copyButton);
+        copyButton.setAttribute("aria-label", "复制代码");
+        wrapper.appendChild(copyButton);
+        codeblock.dataset.copyButtonInitialized = "true";
 
-        // 鼠标移到代码块，就显示按钮
-        codeblock.addEventListener("mouseover", () => {
-            copyButton.style.visibility = "visible";
-        });
-
-        // 鼠标从代码块移开，则不显示复制代码按钮
-        codeblock.addEventListener("mouseout", () => {
-            copyButton.style.visibility = "hidden";
-        });
-
-        // 执行 复制代码 功能
+        // 执行复制代码功能
         copyButton.addEventListener("click", async () => {
             try {
-                const codeText = codeblock.firstChild.textContent;
-                await navigator.clipboard.writeText(codeText);
+                await navigator.clipboard.writeText(code.textContent);
                 copyButton.textContent = "复制成功";
             } catch (err) {
                 console.error("复制失败: ", err);

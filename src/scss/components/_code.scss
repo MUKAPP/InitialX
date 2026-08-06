@@ -22,10 +22,51 @@ pre:has(code) {
   max-height: 400px;
 }
 
+.code-block {
+  position: relative;
+  max-width: 100%;
+  margin: 1em 0;
+  overflow: hidden;
+  background: #0d1117;
+  border-radius: $border-radius-sm;
+
+  > pre:has(code) {
+    max-width: 100%;
+    margin: 0;
+    scrollbar-width: thin;
+    scrollbar-color: #6e7681 #161b22;
+
+    &::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    &::-webkit-scrollbar-track,
+    &::-webkit-scrollbar-corner {
+      background: #161b22;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #6e7681;
+      border: 2px solid #161b22;
+      border-radius: $border-radius-pill;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: #8b949e;
+    }
+  }
+}
+
 pre code {
   display: block;
   padding: 1em;
   color: #abb2bf;
+}
+
+// 覆盖 Highlight.js 的内层横向滚动，统一由 pre 处理双向滚动。
+.code-block > pre > code.hljs {
+  overflow: visible;
 }
 
 // Mermaid.js 图表样式例外
@@ -56,19 +97,29 @@ code.language-mermaid {
 // 复制按钮
 .copy-button {
   position: absolute;
-  right: $spacing-sm;
+  z-index: 1;
   top: $spacing-sm;
-  background: #eaeaea;
-  color: #212121;
+  right: $spacing-sm;
   padding: 2px 8px;
+  color: #212121;
+  font: inherit;
+  background: #eaeaea;
+  border: 0;
   border-radius: $border-radius-xs;
-  cursor: pointer;
   box-shadow: $shadow-sm;
-  font-family: initial;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
   @include transition;
-  
+
   &:hover {
-    background: var(--primary-color);
     color: #fff;
+    background: var(--primary-color);
   }
+}
+
+.code-block:hover .copy-button,
+.code-block:focus-within .copy-button {
+  opacity: 1;
+  pointer-events: auto;
 }
