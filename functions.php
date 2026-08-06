@@ -457,7 +457,13 @@ function cjUrl($path)
 
 function hrefOpen($obj)
 {
-    return preg_replace('/<a\b([^>]+?)\bhref="((?!' . addcslashes(Helper::options()->index, '/._-+=#?&') . '|\#).*?)"([^>]*?)>/i', '<a\1href="\2"\3 target="_blank">', $obj);
+    return preg_replace_callback('/<a\b([^>]+?)\bhref="((?!' . addcslashes(Helper::options()->index, '/._-+=#?&') . '|\#).*?)"([^>]*?)>/i', function ($matches) {
+        // 已有 rel 属性的链接不重复添加
+        if (preg_match('/\brel\s*=/i', $matches[1] . $matches[3])) {
+            return $matches[0];
+        }
+        return '<a' . $matches[1] . 'href="' . $matches[2] . '"' . $matches[3] . ' target="_blank" rel="noopener noreferrer">';
+    }, $obj);
 }
 
 function UrlReplace($obj)
@@ -755,18 +761,31 @@ function Links($sorts = NULL, $icon = 0)
     if ($list) {
         $list = explode(PHP_EOL, $list);
         foreach ($list as $val) {
-            list($name, $url, $description, $logo, $sort) = explode(',', $val);
+            // 链接行格式: 名称,URL,描述,图标,分类；字段缺失时按空字符串处理
+            $fields = explode(',', $val);
+            $name = $fields[0] ?? '';
+            $url = $fields[1] ?? '';
+            $description = $fields[2] ?? '';
+            $logo = $fields[3] ?? '';
+            $sort = $fields[4] ?? '';
+            // 输出统一转义，URL 仅允许 http/https，防止 javascript: 等协议注入
+            $safeUrl = $url ? htmlspecialchars(\Typecho\Common::safeUrl($url)) : '';
+            $safeName = htmlspecialchars($name);
+            $safeDescription = htmlspecialchars($description);
+            $safeLogo = $logo ? htmlspecialchars($logo) : '';
             if ($sorts) {
                 $arr = explode(',', $sorts);
                 if ($sort && in_array($sort, $arr)) {
-                    $link .= '<li><a' . ($url ? ' href="' . $url . '"' : '') . ($icon == 1 && $url ? ' class="l_logo"' : '') . ' title="' . $description . '" target="_blank">' . ($icon == 1 && $url ? '<img src="' . ($logo ? $logo : rtrim($url, '/') . '/favicon.ico') . '" onerror="erroricon(this)">' : '') . '<span>' . ($url ? $name : '<del>' . $name . '</del>') . '</span></a></li>' . PHP_EOL;
+                    $link .= '<li><a' . ($url ? ' href="' . $safeUrl . '"' : '') . ($icon == 1 && $url ? ' class="l_logo"' : '') . ' title="' . $safeDescription . '" target="_blank">' . ($icon == 1 && $url ? '<img src="' . ($safeLogo ? $safeLogo : htmlspecialchars(rtrim($url, '/') . '/favicon.ico')) . '" onerror="erroricon(this)">' : '') . '<span>' . ($url ? $safeName : '<del>' . $safeName . '</del>') . '</span></a></li>' . PHP_EOL;
                 }
             } else {
-                $link .= '<li><a' . ($url ? ' href="' . $url . '"' : '') . ($icon == 1 && $url ? ' class="l_logo"' : '') . ' title="' . $description . '" target="_blank">' . ($icon == 1 && $url ? '<img src="' . ($logo ? $logo : rtrim($url, '/') . '/favicon.ico') . '" onerror="erroricon(this)">' : '') . '<span>' . ($url ? $name : '<del>' . $name . '</del>') . '</span></a></li>' . PHP_EOL;
+                $link .= '<li><a' . ($url ? ' href="' . $safeUrl . '"' : '') . ($icon == 1 && $url ? ' class="l_logo"' : '') . ' title="' . $safeDescription . '" target="_blank">' . ($icon == 1 && $url ? '<img src="' . ($safeLogo ? $safeLogo : htmlspecialchars(rtrim($url, '/') . '/favicon.ico')) . '" onerror="erroricon(this)">' : '') . '<span>' . ($url ? $safeName : '<del>' . $safeName . '</del>') . '</span></a></li>' . PHP_EOL;
             }
         }
     }
-    echo $link ? $link : '<li>暂无链接</li>' . PHP_EOL;
+    $output = $link ? $link : '<li>暂无链接</li>' . PHP_EOL;
+    $cache[$key] = $output;
+    echo $output;
 }
 
 function Playlist(): void
