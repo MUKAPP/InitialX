@@ -247,15 +247,14 @@ if (document.getElementById("body").hasAttribute("in-swup")) {
                         alert("您输入的内容不符合规则或者回复太频繁，请修改内容或者稍等片刻。");
                         return false;
                     } else {
-                        newCommentId = $(commentListSelector, response)
-                            .html()
-                            .match(/id=\"?comment-\d+/g)
-                            .join()
-                            .match(/\d+/g)
-                            .sort(function (a, b) {
-                                return a - b;
+                        // 从响应中按 DOM id 提取最新评论 id，替代脆弱的正则匹配
+                        var newCommentIds = $(commentListSelector, response)
+                            .find("[id^='comment-']")
+                            .map(function () {
+                                return parseInt(this.id.replace(/^comment-/, ""), 10);
                             })
-                            .pop();
+                            .get();
+                        newCommentId = newCommentIds.length ? Math.max.apply(null, newCommentIds) : "";
                         if ($(".page-navigator .prev").length && parentCommentId == "") {
                             newCommentId = "";
                         }
@@ -278,14 +277,17 @@ if (document.getElementById("body").hasAttribute("in-swup")) {
                         }
                         $("#li-comment-" + newCommentId).fadeIn();
                         var commentCount;
-                        $(commentNumSelector).length
-                            ? ((commentCount = parseInt($(commentNumSelector).text().match(/\d+/))),
-                                $(commentNumSelector).html(
-                                    $(commentNumSelector)
-                                        .html()
-                                        .replace(commentCount, commentCount + 1),
-                                ))
-                            : 0;
+                        var commentNumMatch = $(commentNumSelector).length
+                            ? $(commentNumSelector).text().match(/\d+/)
+                            : null;
+                        commentCount = commentNumMatch ? parseInt(commentNumMatch[0], 10) : 0;
+                        if ($(commentNumSelector).length) {
+                            $(commentNumSelector).html(
+                                $(commentNumSelector)
+                                    .html()
+                                    .replace(commentCount, commentCount + 1),
+                            );
+                        }
                         TypechoComment.cancelReply();
                         $(textareaSelector).val("");
                         $(commentReplySelector + "," + whisperReplySelector + ", #cancel-comment-reply-link").off("click");
@@ -353,6 +355,13 @@ if (document.getElementById("body").hasAttribute("in-swup")) {
         } else {
             $.ajax({
                 url: window.location.href,
+                error: function () {
+                    $word
+                        .removeAttr("style")
+                        .text("获取安全令牌失败，请刷新页面后重试。")
+                        .css("color", "red");
+                    return false;
+                },
                 success: function (response) {
                     protectionToken = $('.protected form[action^="' + postUrl + '"]', response)
                         .attr("action")
@@ -541,7 +550,10 @@ if ($topButton) {
     $topButton.addEventListener("click", startScrollToTop);
 }
 
-window.onscroll = function () {
+// 滚动处理：rAF 合并，避免每帧触发重排；用 addEventListener 避免覆盖其他脚本的处理器
+var scrollFramePending = false;
+function handleScroll() {
+    scrollFramePending = false;
     var scrollTop = getPageScrollTop();
     var $secondary = document.getElementById("secondary");
     var isHeadFixed = document
@@ -589,7 +601,14 @@ window.onscroll = function () {
             }
         }
     }
-};
+}
+
+window.addEventListener("scroll", function () {
+    if (!scrollFramePending) {
+        scrollFramePending = true;
+        requestAnimationFrame(handleScroll);
+    }
+});
 
 // 初始化背景音乐
 if (document.getElementById("music")) {
@@ -738,15 +757,47 @@ function addCopyButtonsToCodeblocks() {
         wrapper.appendChild(copyButton);
         codeblock.dataset.copyButtonInitialized = "true";
 
-        // 执行复制代码功能
-        copyButton.addEventListener("click", async () => {
+        // 复制文本：优先异步 Clipboard API（需 HTTPS），失败时降级 execCommand
+        function fallbackCopyText(text) {
+            var textarea = document.createElement("textarea");
+            textarea.value = text;
+            textarea.setAttribute("readonly", "");
+            textarea.style.position = "fixed";
+            textarea.style.opacity = "0";
+            document.body.appendChild(textarea);
+            textarea.select();
+            var ok = false;
             try {
-                await navigator.clipboard.writeText(code.textContent);
-                copyButton.textContent = "复制成功";
+                ok = document.execCommand("copy");
             } catch (err) {
-                console.error("复制失败: ", err);
-                copyButton.textContent = "复制失败";
+                ok = false;
             }
+            document.body.removeChild(textarea);
+            return ok;
+        }
+
+        function copyCodeText(text) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                return navigator.clipboard
+                    .writeText(text)
+                    .then(function () {
+                        return true;
+                    })
+                    .catch(function () {
+                        return fallbackCopyText(text);
+                    });
+            }
+            return Promise.resolve(fallbackCopyText(text));
+        }
+
+        // 执行复制代码功能
+        copyButton.addEventListener("click", function () {
+            copyCodeText(code.textContent).then(function (ok) {
+                copyButton.textContent = ok ? "复制成功" : "复制失败";
+                if (!ok) {
+                    console.error("复制失败");
+                }
+            });
             setTimeout(() => {
                 copyButton.textContent = "复制";
             }, 1000);
