@@ -637,10 +637,13 @@ function initialx_prefetch_comment_at($cid): void
     $GLOBALS['initialx_comment_at_map_ready'] = true;
 }
 
-// URL 协议白名单：仅 http/https，其余协议（javascript:/data:/vbscript: 等）一律拒绝
+// URL 协议白名单：仅 http/https，其余协议（javascript:/data:/vbscript: 等）一律拒绝。
+// 浏览器 URL 解析会先剔除 ASCII 制表符/换行/控制字符，检测前同样剥离，
+// 防止 "java\nscript:" 之类变体绕过 scheme 匹配
 function initialx_safe_url($url): bool
 {
     $url = trim((string)$url);
+    $url = preg_replace('/[\x00-\x20\x7f]+/', '', $url);
     if (preg_match('#^([a-z][a-z0-9+.-]*):#i', $url, $m)) {
         return in_array(strtolower($m[1]), array('http', 'https'), true);
     }
