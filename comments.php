@@ -95,7 +95,9 @@ function threadedComments($comments, $options): void
                     <?php endif; ?>
                     <button type="submit" class="submit">提交评论</button>
                 </p>
-                <?php if (class_exists('Geetest4Comment_Plugin')): ?>
+                <?php if (class_exists('\TypechoPlugin\Geetest4Comment\Plugin')): ?>
+                    <?php \TypechoPlugin\Geetest4Comment\Plugin::commentCaptchaRender(); ?>
+                <?php elseif (class_exists('Geetest4Comment_Plugin')): ?>
                     <?php Geetest4Comment_Plugin::commentCaptchaRender(); ?>
                 <?php endif; ?>
             </form>

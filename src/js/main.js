@@ -65,6 +65,156 @@ if (document.getElementById("body").hasAttribute("in-swup")) {
         }
     });
 
+    // 执行新页面容器内的脚本，兼容依赖 PJAX 内联脚本的插件
+    function executePageScripts(visit) {
+        $("#main script").each(function () {
+            var type = (this.getAttribute("type") || "").toLowerCase();
+            if (this.hasAttribute("data-swup-executed") || (type && type !== "text/javascript" && type !== "application/javascript" && type !== "module")) {
+                return;
+            }
+            this.setAttribute("data-swup-executed", "true");
+            if (!this.src && type !== "module") {
+                window.eval(this.textContent);
+                return;
+            }
+            var script = document.createElement("script");
+            Array.prototype.forEach.call(this.attributes, function (attribute) {
+                script.setAttribute(attribute.name, attribute.value);
+            });
+            script.text = this.textContent;
+            this.parentNode.replaceChild(script, this);
+        });
+
+        if (!visit.to.html) {
+            return;
+        }
+        function typesetMathJax() {
+            var main = document.getElementById("main");
+            if (!main || !window.MathJax || typeof window.MathJax.typesetPromise !== "function") {
+                return;
+            }
+            window.MathJax.typesetClear([main]);
+            window.MathJax.typesetPromise([main]).catch(function (error) {
+                console.error("Failed to typeset MathJax content:", error);
+            });
+        }
+
+        var incomingDocument = new DOMParser().parseFromString(visit.to.html, "text/html");
+        var resourceState = window.__initialXSwupResources || (window.__initialXSwupResources = {});
+        var hasMathJaxResource = false;
+        $(incomingDocument)
+            .find("script")
+            .each(function () {
+                var source = this.textContent || "";
+                var src = this.getAttribute("src") || "";
+                var isMermaidResource = source.indexOf("mermaid.initialize") !== -1 || /mermaid/i.test(src);
+                var isMathJaxResource = source.indexOf("MathJax=") !== -1 || /mathjax/i.test(src);
+                var isMarkdownResource = isMermaidResource || isMathJaxResource || /polyfill\.alicdn\.com/i.test(src);
+                if ($(this).closest("#main").length || !isMarkdownResource) {
+                    return;
+                }
+                hasMathJaxResource = hasMathJaxResource || isMathJaxResource;
+                var key = src || source;
+                if (resourceState[key] && !isMermaidResource) {
+                    return;
+                }
+                resourceState[key] = true;
+                var script = document.createElement("script");
+                Array.prototype.forEach.call(this.attributes, function (attribute) {
+                    if (attribute.name !== "id") {
+                        script.setAttribute(attribute.name, attribute.value);
+                    }
+                });
+                if (isMermaidResource && !src) {
+                    script.text = source.replace(/startOnLoad\s*:\s*true/, "startOnLoad: false") +
+                        "\nif (typeof mermaid.run === \"function\") { mermaid.run({ nodes: document.querySelectorAll(\"#main .mermaid\") }); } else { mermaid.init(undefined, document.querySelectorAll(\"#main .mermaid\")); }";
+                } else {
+                    script.text = source;
+                }
+                if (isMathJaxResource && /mathjax/i.test(src)) {
+                    script.addEventListener("load", typesetMathJax, { once: true });
+                }
+                document.head.appendChild(script);
+            });
+        if (hasMathJaxResource) {
+            typesetMathJax();
+        }
+    }
+
+    swup.hooks.on("page:view", function (visit) {
+        executePageScripts(visit);
+    });
+
+    // 兼容依赖 jquery-pjax 生命周期事件的第三方脚本
+    function getPjaxMetadata(visit) {
+        if (!visit.meta.pjax) {
+            var url = window.location.origin + visit.to.url + visit.to.hash;
+            visit.meta.pjax = {
+                options: {
+                    url: url,
+                    container: "#main",
+                    push: visit.history.action === "push",
+                    replace: visit.history.action === "replace",
+                    timeout: swup.options.timeout,
+                    target: visit.trigger.el || null,
+                },
+                state: {
+                    id: visit.id,
+                    url: url,
+                    title: document.title,
+                    container: "#main",
+                    timeout: swup.options.timeout,
+                },
+                previousState: window.history.state,
+            };
+        }
+        return visit.meta.pjax;
+    }
+
+    function triggerPjaxEvent(type, visit, args, props) {
+        var metadata = getPjaxMetadata(visit);
+        var event = $.Event(
+            type,
+            $.extend(
+                {
+                    relatedTarget: metadata.options.target,
+                },
+                props,
+            ),
+        );
+        $("#main").trigger(event, args || [null, metadata.options]);
+    }
+
+    swup.hooks.on("history:popstate", function (visit) {
+        var metadata = getPjaxMetadata(visit);
+        triggerPjaxEvent("pjax:popstate", visit, [], {
+            state: metadata.state,
+            direction: visit.history.direction,
+        });
+    });
+
+    swup.hooks.on("visit:start", function (visit) {
+        var metadata = getPjaxMetadata(visit);
+        triggerPjaxEvent("pjax:start", visit, [null, metadata.options]);
+        triggerPjaxEvent("pjax:send", visit, [null, metadata.options]);
+    });
+
+    swup.hooks.before("content:replace", function (visit, context) {
+        var metadata = getPjaxMetadata(visit);
+        triggerPjaxEvent("pjax:beforeReplace", visit, [context.page.html, metadata.options], {
+            state: metadata.state,
+            previousState: metadata.previousState,
+        });
+    });
+
+    swup.hooks.on("page:view", function (visit) {
+        var metadata = getPjaxMetadata(visit);
+        metadata.state.title = document.title;
+        triggerPjaxEvent("pjax:success", visit, [visit.to.html, "success", null, metadata.options]);
+        triggerPjaxEvent("pjax:complete", visit, [null, "success", metadata.options]);
+        triggerPjaxEvent("pjax:end", visit, [null, metadata.options]);
+    });
+
     // 初始化评论表单
     function initCommentForm() {
         var $body = $("html,body");
