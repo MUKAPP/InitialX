@@ -9,6 +9,7 @@ use Typecho\Widget\Helper\Form\Element\Radio;
 use Typecho\Widget\Helper\Form\Element\Text;
 use Typecho\Widget\Helper\Form\Element\Textarea;
 use Utils\Helper;
+use Utils\Markdown;
 use Widget\Base\Comments;
 
 // InitialX 主题版本号
@@ -636,9 +637,95 @@ function initialx_prefetch_comment_at($cid): void
     $GLOBALS['initialx_comment_at_map_ready'] = true;
 }
 
-function CommentAt($coid): void
+// URL 协议白名单：仅 http/https，其余协议（javascript:/data:/vbscript: 等）一律拒绝
+function initialx_safe_url($url): bool
 {
-    // 已由模板预取时直接查映射
+    $url = trim((string)$url);
+    if (preg_match('#^([a-z][a-z0-9+.-]*):#i', $url, $m)) {
+        return in_array(strtolower($m[1]), array('http', 'https'), true);
+    }
+    return true;
+}
+
+// DOM 白名单净化：保留允许标签与属性，属性值做 URL scheme 校验。
+// 评论 text 原样入库，不可直接输出；原生 strip_tags 会保留允许标签的全部
+// 属性（onerror/onclick 等）且不校验协议，DOM 方案在解析层统一处理
+// 实体编码/引号变体，白名单外的标签剥离后保留其文本内容。
+function initialx_sanitize_html($html): string
+{
+    $allowed = array(
+        'p' => array(), 'br' => array(), 'strong' => array(), 'em' => array(),
+        'b' => array(), 'i' => array(), 'del' => array(), 'blockquote' => array(),
+        'ul' => array(), 'ol' => array(), 'li' => array(),
+        'h1' => array(), 'h2' => array(), 'h3' => array(), 'h4' => array(), 'h5' => array(), 'h6' => array(),
+        'hr' => array(),
+        'pre' => array('class'), 'code' => array('class'),
+        'a' => array('href', 'title', 'rel', 'target'),
+        'img' => array('src', 'alt', 'title'),
+        'table' => array(), 'thead' => array(), 'tbody' => array(), 'tr' => array(), 'td' => array(), 'th' => array(),
+    );
+    if (!class_exists('DOMDocument')) {
+        // 无 DOM 扩展时降级为纯文本
+        return nl2br(htmlspecialchars((string)$html));
+    }
+    $previous = libxml_use_internal_errors(true);
+    $dom = new DOMDocument();
+    $dom->loadHTML('<?xml encoding="UTF-8">' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+    libxml_clear_errors();
+    libxml_use_internal_errors($previous);
+    $xpath = new DOMXPath($dom);
+    $all = array();
+    foreach ($xpath->query('//*') as $node) {
+        $all[] = $node;
+    }
+    // 自底向上处理，保证先剥离嵌套标签再处理外层
+    foreach (array_reverse($all) as $node) {
+        $tag = strtolower($node->nodeName);
+        if (!isset($allowed[$tag])) {
+            while ($node->firstChild) {
+                $node->parentNode->insertBefore($node->firstChild, $node);
+            }
+            $node->parentNode->removeChild($node);
+        } else {
+            $allowAttrs = $allowed[$tag];
+            foreach (iterator_to_array($node->attributes) as $attr) {
+                $name = strtolower($attr->nodeName);
+                if (!in_array($name, $allowAttrs, true)) {
+                    $node->removeAttributeNode($attr);
+                } elseif (($name === 'href' || $name === 'src') && !initialx_safe_url($attr->nodeValue)) {
+                    $node->removeAttributeNode($attr);
+                }
+            }
+        }
+    }
+    $body = $dom->getElementsByTagName('body')->item(0);
+    $result = '';
+    // LIBXML_HTML_NOIMPLIED 下 fragment 无 body 包裹，统一遍历顶层节点；
+    // 若输入含 html/body（非法场景）则取其子节点
+    $collect = function ($nodes) use (&$collect, &$result, $dom) {
+        foreach ($nodes as $node) {
+            if ($node instanceof DOMProcessingInstruction) {
+                continue; // 跳过编码声明的处理指令节点
+            }
+            if ($node instanceof DOMElement && in_array(strtolower($node->nodeName), array('html', 'body'), true)) {
+                $collect($node->childNodes);
+            } else {
+                $result .= $dom->saveHTML($node);
+            }
+        }
+    };
+    $collect($dom->childNodes);
+    return $result;
+}
+
+// 评论内容安全渲染：Markdown 转换 → DOM 白名单净化（含 URL scheme 校验）
+function initialx_comment_html($text): string
+{
+    return initialx_sanitize_html(Markdown::convert((string)$text));
+}
+
+function CommentAt($coid): void
+{    // 已由模板预取时直接查映射
     if (!empty($GLOBALS['initialx_comment_at_map_ready'])) {
         $map = $GLOBALS['initialx_comment_at_map'];
         if (isset($map[$coid]) && $map[$coid] !== '') {
@@ -818,11 +905,12 @@ function Whisper($sidebar = NULL): void
             ->order('coid', Db::SORT_DESC)
             ->limit(1));
         if ($comment) {
-            // 评论内容以纯文本输出：评论 text 原样入库，若经 Markdown 转换后再用原生
-            // strip_tags 白名单渲染，事件属性（onerror/onclick 等）与 javascript: 链接
-            // 会原样保留，构成存储型 XSS。这里只保留纯文本与换行。
-            $content = '<' . $p . '>' . nl2br(htmlspecialchars($comment[0]['text'])) . '</' . $p . '>' .
-                ($sidebar ? PHP_EOL . '<li class="more"><a href="' . htmlspecialchars($page['permalink']) . '">查看更多...</a></li>' : '');
+            // 评论内容经 Markdown 渲染后做 DOM 白名单净化（剥离事件属性、
+            // 校验 href/src 协议），原生 strip_tags 会保留全部属性构成 XSS
+            $commentHtml = initialx_comment_html($comment[0]['text']);
+            $content = $sidebar
+                ? '<li>' . $commentHtml . '</li>' . PHP_EOL . '<li class="more"><a href="' . htmlspecialchars($page['permalink']) . '">查看更多...</a></li>'
+                : $commentHtml;
         } else {
             $content = '<' . $p . '>暂无内容</' . $p . '>';
         }

@@ -48,8 +48,8 @@ Breadcrumbs($this); ?>
                     <?php } ?>
                 </div>
                 <div class="comment-content">
-                    <?php // 评论 text 原样入库，原生 strip_tags 白名单会保留事件属性（存储型 XSS），统一纯文本输出
-                    echo nl2br(htmlspecialchars($comments->text)); ?>
+                    <?php // Markdown 渲染 + DOM 白名单净化（剥离事件属性、校验 href/src 协议）
+                    echo initialx_comment_html($comments->text); ?>
                 </div>
                 <div class="comment-meta">
                     <time><?php $comments->dateWord(); ?></time>
