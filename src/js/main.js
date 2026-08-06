@@ -64,6 +64,10 @@ if (document.getElementById("body").hasAttribute("in-swup")) {
         restoreAjaxExtras();
         if ($(".ajaxload").length) {
             loadMoreContent();
+            // 直接从文章页等入口导航到列表页时，顶层初始化未绑定过滚动监听
+            if ($(".ajaxload.auto").length) {
+                bindAutoLoadMoreScroll();
+            }
         }
         initCatalog();
         initCommentForm();
@@ -543,19 +547,26 @@ function loadMore() {
     }
 }
 
+// 自动加载模式（.ajaxload.auto）的滚动监听：
+// 命名空间绑定 + 先解绑，避免 Pjax 多次导航到列表页时重复监听
+function bindAutoLoadMoreScroll() {
+    $(window).off("scroll.initialxAutoLoad");
+    $(window).on("scroll.initialxAutoLoad", function () {
+        if (
+            isLoading &&
+            $(".ajaxload .next a").attr("href") &&
+            $(this).scrollTop() + $(window).height() + 5 >= $(document).height()
+        ) {
+            isLoading = false;
+            loadMore();
+        }
+    });
+}
+
 if (document.getElementsByClassName("ajaxload").length) {
     loadMoreContent();
     if ($(".ajaxload.auto").length) {
-        $(window).scroll(function () {
-            if (
-                isLoading &&
-                $(".ajaxload .next a").attr("href") &&
-                $(this).scrollTop() + $(window).height() + 5 >= $(document).height()
-            ) {
-                isLoading = false;
-                loadMore();
-            }
-        });
+        bindAutoLoadMoreScroll();
     }
 }
 
