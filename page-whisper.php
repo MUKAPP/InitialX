@@ -98,7 +98,7 @@ Breadcrumbs($this); ?>
                     <?php $comments->cancelReply('取消评论'); ?>
                 </div>
                 <h3 id="response">发表<?php echo $this->user->pass('editor', true) ? '轻语' : '评论' ?></h3>
-                <form method="post" <?php if ($this->user->pass('editor', true)): ?> action="<?php $this->commentUrl() ?>" <?php endif; ?>
+                <form method="post" action="<?php $this->commentUrl() ?>"
                       id="comment-form" <?php if (!$this->user->hasLogin()): ?> class="comment-form clearfix" <?php endif; ?>>
                     <p <?php if (!$this->user->hasLogin()): ?>class="textarea" <?php endif; ?>>
 					<textarea name="text" id="textarea" placeholder="说点什么..."
@@ -168,7 +168,6 @@ Breadcrumbs($this); ?>
                                 return true
                             }
                             this.dom('cancel-comment-reply-link').style.display = 'none';
-                            form.removeAttribute('action');
                             <?php if ($this->user->pass('editor', true)): ?>this.dom('response').innerHTML = '发表轻语';
                             <?php endif; ?>holder.parentNode.insertBefore(response, holder);
                             return false
