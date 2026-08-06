@@ -35,6 +35,10 @@ if (document.getElementById("body").hasAttribute("in-swup")) {
 
     // 显示页面加载状态
     swup.hooks.on("visit:start", function () {
+        // 离开带扩展文章的列表页前记录滚动位置，供返回时恢复
+        if (ajaxExtrasState && ajaxExtrasState.url === window.location.href) {
+            ajaxExtrasState.scrollY = getPageScrollTop();
+        }
         $("#header").prepend("<div id='loading-bar'></div>");
     });
 
@@ -51,6 +55,8 @@ if (document.getElementById("body").hasAttribute("in-swup")) {
 
     // 新页面可见后重新绑定页面内交互
     swup.hooks.on("page:view", function () {
+        // 返回列表页时恢复此前 Ajax 加载的文章
+        restoreAjaxExtras();
         if ($(".ajaxload").length) {
             loadMoreContent();
         }
@@ -424,6 +430,45 @@ if (document.getElementById("body").hasAttribute("in-swup")) {
 // 加载更多内容
 var isLoading = true;
 
+// 已通过 Ajax 加载的文章状态：Pjax 返回列表页时恢复，避免重新加载
+var ajaxExtrasState = null;
+
+function recordAjaxExtras($newPosts, nextPageUrl) {
+    if (!ajaxExtrasState || ajaxExtrasState.url !== window.location.href) {
+        ajaxExtrasState = { url: window.location.href, elements: [], nextUrl: "", scrollY: 0 };
+    }
+    ajaxExtrasState.elements = ajaxExtrasState.elements.concat($newPosts.get());
+    ajaxExtrasState.nextUrl = nextPageUrl || "";
+}
+
+function restoreAjaxExtras() {
+    if (!ajaxExtrasState || ajaxExtrasState.url !== window.location.href) {
+        return;
+    }
+    var $container = $(".ajaxload");
+    if (!$container.length || !ajaxExtrasState.elements.length) {
+        return;
+    }
+    // 已恢复过（页面中已有恢复标记）则跳过，避免重复插入
+    if ($("#main").find(".ajax-restored").length) {
+        return;
+    }
+    $container.before($(ajaxExtrasState.elements).addClass("ajax-restored"));
+    // 恢复“查看更多”链接状态
+    if (ajaxExtrasState.nextUrl) {
+        $(".ajaxload .next a").attr("href", ajaxExtrasState.nextUrl);
+    } else {
+        $(".ajaxload .next a").remove();
+        $(".ajaxload .next").text("没有更多文章了");
+    }
+    // 恢复离开前的滚动位置
+    if (ajaxExtrasState.scrollY > 0) {
+        requestAnimationFrame(function () {
+            window.scrollTo(0, ajaxExtrasState.scrollY);
+        });
+    }
+}
+
 function loadMoreContent() {
     $('.ajaxload li[class!="next"]').remove();
     $(".ajaxload .next a").click(function () {
@@ -465,6 +510,7 @@ function loadMore() {
                     $(".protected *").off();
                     initProtectedContent();
                 }
+                recordAjaxExtras($newPosts, nextPageUrl);
                 isLoading = true;
                 return false;
             },
