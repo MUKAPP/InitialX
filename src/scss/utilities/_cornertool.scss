@@ -70,33 +70,36 @@
       animation: play 5s linear infinite;
       -webkit-animation: play 5s linear infinite;
     }
-    
+
     &:hover::before {
       content: "〓";
       animation: 0;
       -webkit-animation: 0;
     }
-    
+
     span {
-      width: 100%;
-      
+      opacity: 1;
+
       i {
         display: block;
         height: 100%;
         width: 0;
-        background: #eee;
+        border-radius: inherit;
+        background: var(--primary-color);
       }
     }
   }
-  
+
   span {
     position: absolute;
-    display: block;
-    bottom: 0;
-    height: 5px;
-    width: 0;
-    background: #666;
-    opacity: 0.7;
+    bottom: $spacing-xs;
+    left: $spacing-sm;
+    right: $spacing-sm;
+    height: 4px;
+    border-radius: $border-radius-pill;
+    background: var(--border-color);
+    overflow: hidden;
+    opacity: 0;
     @include transition($transition-fast);
   }
 }
