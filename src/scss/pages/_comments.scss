@@ -20,13 +20,9 @@
   margin: 0;
   padding: 0;
   
-  ol {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  
-  li {
+  // 嵌套评论列表自带 .comment-list，其 list-style 已由上方规则处理；
+  // 不再写 .comment-list ol（会误伤评论内容中 Markdown 生成的有序列表）
+  > li {
     background-color: var(--card-color);
     border-radius: var(--comment-radius, $border-radius-lg);
     
@@ -49,19 +45,19 @@
   padding: 12px;
   padding-top: 0;
   
-  .comment-list li {
+  .comment-list > li {
     --comment-radius: 21px;
   }
   
-  .comment-children .comment-list li {
+  .comment-children .comment-list > li {
     --comment-radius: 18px;
   }
   
-  .comment-children .comment-children .comment-list li {
+  .comment-children .comment-children .comment-list > li {
     --comment-radius: 15px;
   }
   
-  .comment-children .comment-children .comment-children .comment-list li {
+  .comment-children .comment-children .comment-children .comment-list > li {
     --comment-radius: 12px;
   }
 }
@@ -74,6 +70,20 @@
 .comment-content {
   line-height: $line-height-content;
   word-wrap: break-word;
+  
+  // 显式恢复列表样式：.comment-list 的 list-style 会继承到此处，
+  // 不显式设置时 Markdown 的 ul/ol 会丢失序号与项目符号
+  ul {
+    list-style: disc;
+    margin: 0 0 1em;
+    padding-left: 2em;
+  }
+  
+  ol {
+    list-style: decimal;
+    margin: 0 0 1em;
+    padding-left: 2em;
+  }
   
   a {
     color: var(--link-color);
