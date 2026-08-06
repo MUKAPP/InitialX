@@ -41,8 +41,9 @@ function threadedComments($comments, $options): void
             </div>
             <div class="comment-content heti">
                 <?php // 主题接管评论渲染：Markdown + DOM 白名单净化。核心管线依赖后台
-                // "允许使用的HTML标签和属性"配置（默认空会剥掉全部 Markdown 标签）
-                echo $this->hidden ? _t('内容被隐藏') : initialx_comment_html($comments->text); ?>
+                // "允许使用的HTML标签和属性"配置（默认空会剥掉全部 Markdown 标签）。
+                // threadedComments 是全局回调函数，须经 $comments 访问父内容
+                echo $comments->parentContent->hidden ? _t('内容被隐藏') : initialx_comment_html($comments->text); ?>
             </div>
             <div class="comment-reply">
                 <?php $comments->reply(); ?> <!-- 显示回复按钮 -->
