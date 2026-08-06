@@ -1,4 +1,10 @@
-<?php if (!defined('__TYPECHO_ROOT_DIR__'))
+<?php
+/**
+ * 链接
+ *
+ * @package custom
+ */
+if (!defined('__TYPECHO_ROOT_DIR__'))
     exit;
 
 // 加载页面头部

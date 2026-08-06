@@ -1,4 +1,10 @@
-<?php if (!defined('__TYPECHO_ROOT_DIR__'))
+<?php
+/**
+ * 轻语
+ *
+ * @package custom
+ */
+if (!defined('__TYPECHO_ROOT_DIR__'))
     exit;
 
 use Typecho\Widget;
