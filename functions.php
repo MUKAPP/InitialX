@@ -741,7 +741,7 @@ function initialx_category_slug_map($db, array $cids): array
         ->join('table.metas', 'table.metas.mid = table.relationships.mid', Db::INNER_JOIN)
         ->where('table.metas.type = ?', 'category')
         ->where('table.relationships.cid IN ?', $cids)
-        ->order('table.relationships.order', Db::SORT_ASC));
+        ->order('table.metas.order', Db::SORT_ASC));
     foreach ($rows as $row) {
         if (!isset($map[$row['cid']])) {
             $map[$row['cid']] = $row['slug'];
