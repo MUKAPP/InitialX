@@ -1,5 +1,11 @@
 // 检查是否启用了无刷新导航
 if (document.getElementById("body").hasAttribute("in-swup")) {
+    // 自行管理滚动位置：关闭浏览器原生恢复，避免其与主题的恢复逻辑竞争
+    // （原生恢复在慢加载时会被钳制或延迟触发，导致返回后位置漂移）
+    if ("scrollRestoration" in history) {
+        history.scrollRestoration = "manual";
+    }
+
     // 定义jQuery shake动画效果
     jQuery.fn.shake = function (times, distance) {
         this.each(function () {
@@ -34,15 +40,19 @@ if (document.getElementById("body").hasAttribute("in-swup")) {
     });
 
     // 显示页面加载状态
-    swup.hooks.on("visit:start", function () {
+    swup.hooks.on("visit:start", function (visit) {
         // 中止在途的加载更多请求，避免过期响应写入新页面
         if (pendingLoadMore) {
             pendingLoadMore.abort();
             pendingLoadMore = null;
         }
-        // 离开带扩展文章的列表页前记录滚动位置，供返回时恢复
-        if (ajaxExtrasState && ajaxExtrasState.url === window.location.href) {
-            ajaxExtrasState.scrollY = getPageScrollTop();
+        // 取消上一页未完成的滚动恢复，避免导航后旧回调误滚新页面
+        cancelScrollRestore();
+        // 按 URL 记忆离开前的滚动位置，返回该页时恢复。
+        // 返回/前进（popstate 遍历）时 URL 已变为目标页，此刻记录会覆盖
+        // 目标页已有的记忆（上一页的真实位置已无法取回），因此跳过
+        if (!visit || !visit.history.popstate) {
+            rememberScrollPosition();
         }
         $("#header").prepend("<div id='loading-bar'></div>");
     });
@@ -461,38 +471,174 @@ var pendingLoadMore = null;
 
 function recordAjaxExtras($newPosts, nextPageUrl) {
     if (!ajaxExtrasState || ajaxExtrasState.url !== window.location.href) {
-        ajaxExtrasState = { url: window.location.href, elements: [], nextUrl: "", scrollY: 0 };
+        ajaxExtrasState = { url: window.location.href, elements: [], nextUrl: "" };
     }
     ajaxExtrasState.elements = ajaxExtrasState.elements.concat($newPosts.get());
     ajaxExtrasState.nextUrl = nextPageUrl || "";
 }
 
 function restoreAjaxExtras() {
-    if (!ajaxExtrasState || ajaxExtrasState.url !== window.location.href) {
-        return;
-    }
     var $container = $(".ajaxload");
-    if (!$container.length || !ajaxExtrasState.elements.length) {
+    if (!$container.length) {
         return;
     }
-    // 已恢复过（页面中已有恢复标记）则跳过，避免重复插入
-    if ($("#main").find(".ajax-restored").length) {
+    // 仅当 Ajax 扩展状态属于当前页时，恢复已加载的文章 DOM
+    if (ajaxExtrasState && ajaxExtrasState.url === window.location.href) {
+        // 已通过 Ajax 加载的文章：恢复 DOM，避免重新加载（已恢复过则跳过）
+        if (ajaxExtrasState.elements.length && !$("#main").find(".ajax-restored").length) {
+            $container.before($(ajaxExtrasState.elements).addClass("ajax-restored"));
+            // 恢复“查看更多”链接状态
+            if (ajaxExtrasState.nextUrl) {
+                $(".ajaxload .next a").attr("href", ajaxExtrasState.nextUrl);
+            } else {
+                $(".ajaxload .next a").remove();
+                $(".ajaxload .next").text("没有更多文章了");
+            }
+        }
+    }
+    // 恢复离开前的滚动位置：等图片等资源加载完成再滚动，避免页面高度
+    // 不足导致 scrollTo 被钳制、返回后落在错误位置
+    restoreScrollPosition(scrollMemory[window.location.href] || 0);
+}
+
+// 滚动位置记忆：按 URL 记录离开前的滚动位置，返回该页时恢复。
+// 与 ajaxExtrasState 相互独立：未点过“查看更多”的列表页也能恢复位置，
+// 且返回导航离开中间页时不会覆盖目标页的记忆
+var scrollMemory = {};
+
+function rememberScrollPosition() {
+    scrollMemory[window.location.href] = getPageScrollTop();
+    // 限制条目数量，避免长时间浏览导致内存无限增长
+    var urls = Object.keys(scrollMemory);
+    if (urls.length > 30) {
+        delete scrollMemory[urls[0]];
+    }
+}
+
+// 恢复滚动位置。
+// 返回列表页时页面内图片尚未加载，文档高度不足会把 scrollTo 钳制到当前
+// 高度；图片加载后页面变高，位置就整体偏移了。因此先立即尝试恢复，若
+// 高度不足或目标位置上方仍有图片未加载，则随图片逐个加载完成重试，直到
+// 成功；超时后先按当前高度尽力恢复，后续图片加载完成仍会继续校正。
+// 用户手动滚动或再次导航时取消恢复。
+var scrollRestoreToken = 0;
+var scrollRestoreTimer = 0;
+var scrollRestoreCleanup = null;
+
+function cancelScrollRestore() {
+    scrollRestoreToken++;
+    if (scrollRestoreTimer) {
+        clearTimeout(scrollRestoreTimer);
+        scrollRestoreTimer = 0;
+    }
+    if (scrollRestoreCleanup) {
+        scrollRestoreCleanup();
+        scrollRestoreCleanup = null;
+    }
+}
+
+function restoreScrollPosition(targetY) {
+    cancelScrollRestore();
+    var token = scrollRestoreToken;
+    if (targetY <= 0) {
         return;
     }
-    $container.before($(ajaxExtrasState.elements).addClass("ajax-restored"));
-    // 恢复“查看更多”链接状态
-    if (ajaxExtrasState.nextUrl) {
-        $(".ajaxload .next a").attr("href", ajaxExtrasState.nextUrl);
-    } else {
-        $(".ajaxload .next a").remove();
-        $(".ajaxload .next").text("没有更多文章了");
+
+    function getMaxScroll() {
+        return (
+            Math.max(document.documentElement.scrollHeight, document.body.scrollHeight) -
+            window.innerHeight
+        );
     }
-    // 恢复离开前的滚动位置
-    if (ajaxExtrasState.scrollY > 0) {
-        requestAnimationFrame(function () {
-            window.scrollTo(0, ajaxExtrasState.scrollY);
+
+    // 图片加载完成后是否会改变文档高度：
+    // 有 CSS aspect-ratio 或同时声明宽高属性的图片，加载前后盒子尺寸
+    // 不变，不会引起布局偏移，无需等待
+    function imgReservesHeight(img) {
+        if (img.getAttribute("width") && img.getAttribute("height")) {
+            return true;
+        }
+        var ratio = window.getComputedStyle(img).aspectRatio;
+        return ratio && ratio !== "auto";
+    }
+
+    // 目标位置上方是否还有会导致布局偏移的未加载图片：它们加载后会改变
+    // 上方内容高度，此刻滚动无法落在最终的正确位置
+    function hasPendingImageAbove() {
+        var images = document.images;
+        for (var i = 0; i < images.length; i++) {
+            var img = images[i];
+            if (img.complete || imgReservesHeight(img)) {
+                continue;
+            }
+            if (img.getBoundingClientRect().top + getPageScrollTop() < targetY) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function tryRestore() {
+        if (token !== scrollRestoreToken) {
+            return;
+        }
+        if (targetY > getMaxScroll() || hasPendingImageAbove()) {
+            return;
+        }
+        window.scrollTo(0, targetY);
+        cleanup();
+    }
+
+    function cleanup() {
+        clearTimeout(scrollRestoreTimer);
+        scrollRestoreTimer = 0;
+        if (scrollRestoreCleanup) {
+            scrollRestoreCleanup();
+            scrollRestoreCleanup = null;
+        }
+    }
+
+    function onResourceEvent(event) {
+        var el = event.target;
+        if (el && el.tagName === "IMG") {
+            tryRestore();
+        }
+    }
+
+    // 图片的 load/error 事件不冒泡，用捕获阶段监听；加载失败的图片
+    // complete 同样会置真，不会卡住恢复
+    document.addEventListener("load", onResourceEvent, true);
+    document.addEventListener("error", onResourceEvent, true);
+
+    // 自定义字体加载同样会改变行高和页面高度
+    if (document.fonts && typeof document.fonts.ready.then === "function") {
+        document.fonts.ready.then(function () {
+            if (token === scrollRestoreToken) {
+                tryRestore();
+            }
         });
     }
+
+    scrollRestoreCleanup = function () {
+        document.removeEventListener("load", onResourceEvent, true);
+        document.removeEventListener("error", onResourceEvent, true);
+    };
+
+    // 兜底：资源加载过慢时先按当前高度尽力恢复，避免一直停在页面顶部；
+    // 图片后续加载完成的重试仍会校正到精确位置
+    scrollRestoreTimer = setTimeout(function () {
+        if (token !== scrollRestoreToken) {
+            return;
+        }
+        window.scrollTo(0, Math.min(targetY, getMaxScroll()));
+    }, 8000);
+
+    // 资源已就绪（如浏览器缓存）时，下一帧即可精确恢复
+    requestAnimationFrame(function () {
+        if (token === scrollRestoreToken) {
+            tryRestore();
+        }
+    });
 }
 
 function loadMoreContent() {
@@ -631,13 +777,20 @@ function startScrollToTop() {
     scrollToTopRafId = requestAnimationFrame(animateScrollToTop);
 }
 
-// 用户手动滚动时立即中断回顶动画，避免程序滚动与手势冲突
-window.addEventListener("wheel", stopScrollToTop, { passive: true });
-window.addEventListener("touchstart", stopScrollToTop, { passive: true });
+// 用户手动滚动时立即中断回顶动画与待定的位置恢复，避免程序滚动与手势冲突
+window.addEventListener("wheel", function () {
+    stopScrollToTop();
+    cancelScrollRestore();
+}, { passive: true });
+window.addEventListener("touchstart", function () {
+    stopScrollToTop();
+    cancelScrollRestore();
+}, { passive: true });
 window.addEventListener("keydown", function (event) {
     var keys = ["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " ", "Spacebar"];
     if (keys.indexOf(event.key) !== -1) {
         stopScrollToTop();
+        cancelScrollRestore();
     }
 });
 
