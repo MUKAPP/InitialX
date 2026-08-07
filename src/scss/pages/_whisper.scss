@@ -4,133 +4,174 @@
 @use "../variables" as *;
 @use "../mixins" as *;
 
+// 首页轻语横条
 .post.whisper {
-  min-height: 40px;
-  margin: 2.2em 0 15px;
-  padding: 0 1em;
-  text-align: center;
-  border: 1px solid #444;
-  border-radius: 2px;
-  
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin: $spacing-md 0;
+  padding: $spacing-sm $spacing-md;
+  border: 0;
+  border-radius: $border-radius-lg;
+  overflow: hidden;
+
+  &:hover {
+    background: var(--card-color-dark);
+  }
+
   .post-title {
+    flex-shrink: 0;
     font-size: 1em;
     line-height: 1.5;
-    font-weight: normal;
-    margin: 0 -1em;
-    
+    font-weight: 600;
+    margin: 0;
+    color: var(--primary-color);
+
     a {
-      display: block;
-      padding: 2px 1em;
-      color: #fff;
-      background: #444;
+      display: inline-flex;
+      align-items: center;
+      padding: 2px $spacing-sm;
+      background: var(--card-color-dark);
+      color: var(--text-color);
+      border-radius: $border-radius-pill;
       @include transition;
-      
+
       &:hover {
-        background: #000;
+        background: var(--border-color);
+      }
+
+      // 覆盖整个横条，整条均可点击跳转轻语页
+      &::after {
+        content: "";
+        position: absolute;
+        inset: 0;
       }
     }
-    
+
     .more {
-      position: relative;
-      float: right;
+      display: none;
     }
   }
-  
-  .post-content pre {
+
+  .post-content {
+    flex: 1;
+    min-width: 0;
+    padding: 0;
     text-align: left;
+    color: var(--text-color-light);
+
+    p {
+      margin: 0;
+    }
+
+    pre {
+      text-align: left;
+    }
   }
-  
+
   .notice {
     display: block;
     font-size: $font-size-md;
     padding: 5px;
     color: #f44336;
     border: 1px solid;
-    border-radius: 2px;
+    border-radius: $border-radius-sm;
   }
 }
 
+// 轻语页：评论列表复用 .comment-list 卡片样式（头像、圆角递减、间距均与文章评论一致）
 .whisper {
+
   .whisper-body {
-    padding: 20px 10px;
-    background: 0;
-    border: 0;
-    border-bottom: 1px solid #eee;
-    
-    &:last-child {
-      border: 0;
+    & > div > .comment-author {
+      display: flex;
+      align-items: flex-start;
+      gap: $spacing-sm;
+      margin: 0;
+
+      .avatar {
+        float: none;
+        flex: 0 0 32px;
+        margin: 0;
+      }
+
+      .comment-author-info {
+        display: flex;
+        min-width: 0;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .comment-meta {
+        margin: 0;
+      }
     }
-    
-    & > div > .comment-content,
-    .comment-meta,
-    .comment-children {
-      margin: 1em 0 0 42px;
+
+    & > div > .comment-content {
+      margin: $spacing-sm 0 0;
+
+      > :first-child {
+        margin-top: 0;
+      }
+
+      > :last-child {
+        margin-bottom: 0;
+      }
     }
   }
-  
-  .comment-author {
-    margin: 0;
-  }
-  
+
   .comment-meta {
-    position: relative;
-    
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    font-size: $font-size-sm;
+
+    time,
     .whisper-reply {
-      position: absolute;
-      right: 0;
-      bottom: 0;
-      font-size: $font-size-md;
+      color: var(--text-color-hint);
+    }
+
+    time {
+      font-size: 1em;
+    }
+
+    .whisper-reply {
       cursor: pointer;
+
+      &:hover {
+        color: var(--primary-color);
+      }
     }
   }
-  
-  .comment-body,
-  .comment-parent > .comment-whisper {
-    font-size: 0.94em;
-    margin: 0;
-    padding: 0;
-    background: 0;
-    border: 0;
-  }
-  
-  .comment-parent,
+
+  // 回复条目沿用评论卡片背景，头像与内容在卡片中垂直居中
   .comment-whisper {
-    margin-top: 2px;
-    padding: 2px 5px;
-    background: #e6e6e6;
-    border: 0;
-    border-radius: 2px;
-  }
-  
-  .comment-body {
-    .comment-content {
-      line-height: 20px;
+    background: 0 !important;
+
+    > .comment-author.comment-content {
+      display: flex;
+      align-items: center;
+      min-height: 32px;
+      gap: $spacing-sm;
+
+      .avatar {
+        float: none;
+        flex: 0 0 32px;
+        margin: 0;
+      }
     }
-    
-    .avatar {
-      margin: 2px 5px 0 0;
-    }
   }
-  
-  .comment-parent > .comment-children {
-    margin-left: 5px;
-  }
-  
-  .comment-parent.comment-by-author,
-  .comment-by-author > .comment-whisper {
-    position: relative;
-    background: #f2f7fc;
-  }
-  
+
   .comment-list .respond,
   &.permission .respond {
     display: block;
   }
-  
+
   .respond {
     display: none;
   }
-  
+
   img,
   video {
     max-width: 100%;
