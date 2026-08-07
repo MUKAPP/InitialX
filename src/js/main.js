@@ -245,6 +245,8 @@ if (document.getElementById("body").hasAttribute("in-swup")) {
 
         // 处理评论表单提交
         $("#comment-form").submit(function () {
+            var parentCoid = $("#comment-parent").val();
+            parentCommentId = parentCoid ? "li-comment-" + parentCoid : "";
             // 将 #comments 里的button type="submit"文字改为 提交中...
             $("#comments").find("button[type='submit']").text("提交中...");
             $.ajax({
@@ -342,9 +344,6 @@ if (document.getElementById("body").hasAttribute("in-swup")) {
 
         // 绑定评论相关事件
         function bindCommentEvents() {
-            $(commentReplySelector + "," + whisperReplySelector).click(function () {
-                parentCommentId = $(this).parent().parent().parent().attr("id");
-            });
             $("#cancel-comment-reply-link").click(function () {
                 parentCommentId = "";
             });

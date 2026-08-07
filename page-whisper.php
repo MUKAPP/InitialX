@@ -14,7 +14,7 @@ $this->options->commentsThreaded = true;
 $this->options->commentsMaxNestingLevels = '3';
 Breadcrumbs($this); ?>
     <article class="post">
-        <h1 class="post-title"><a href="<?php $this->permalink() ?>"><?php $this->title() ?></a></h1>
+        <h1 class="post-title"><?php $this->title() ?></h1>
         <div class="post-content">
             <?php $this->content(); ?>
         </div>
@@ -48,7 +48,15 @@ Breadcrumbs($this); ?>
             <?php if ($comments->levels == 0) { ?>
                 <div class="comment-author">
                     <?php $comments->gravatar('32'); ?>
-                    <b><?php CommentAuthor($comments); ?></b>
+                    <div class="comment-author-info">
+                        <b><?php CommentAuthor($comments); ?></b>
+                        <div class="comment-meta">
+                            <time><?php $comments->dateWord(); ?></time>
+                            <?php if ($comments->parameter->allowComment || Widget::widget('Widget_User')->pass('editor', true)) {
+                                echo '<a class="whisper-reply" onclick="return TypechoComment.reply(\'' . $comments->theId . '\', ' . $comments->coid . ');">评论</a>';
+                            } ?>
+                        </div>
+                    </div>
                     <?php if ($comments->status == 'waiting') { ?>
                         <em>内容被拦截，请前往后台-管理评论-通过审核。</em>
                     <?php } ?>
@@ -56,12 +64,6 @@ Breadcrumbs($this); ?>
                 <div class="comment-content">
                     <?php // Markdown 渲染 + DOM 白名单净化（剥离事件属性、校验 href/src 协议）
                     echo initialx_comment_html($comments->text); ?>
-                </div>
-                <div class="comment-meta">
-                    <time><?php $comments->dateWord(); ?></time>
-                    <?php if ($comments->parameter->allowComment || Widget::widget('Widget_User')->pass('editor', true)) {
-                        echo '<a class="whisper-reply" onclick="return TypechoComment.reply(\'' . $comments->theId . '\', ' . $comments->coid . ');">评论</a>';
-                    } ?>
                 </div>
             <?php } else { ?>
                 <div class="comment-author comment-content">
