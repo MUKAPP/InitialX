@@ -12,7 +12,7 @@ use Utils\Helper;
 $this->need('header.php');
 Breadcrumbs($this); ?>
     <article class="post">
-        <h1 class="post-title"><a href="<?php $this->permalink() ?>"><?php $this->title() ?></a></h1>
+        <h1 class="post-title"><?php $this->title() ?></h1>
         <?php
         // 仅查询归档展示所需的列（不拉取正文 text），补齐派生字段后生成 permalink
         $db = \Typecho\Db::get();
